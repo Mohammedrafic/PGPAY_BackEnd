@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PGPAY_DL.Context;
 using PGPAY_DL.IRepo;
+using PGPAY_Model.Enums;
 using PGPAY_Model.Model.Response;
 using PGPAY_Model.Model.UserDetails;
 using System;
@@ -31,7 +32,7 @@ namespace PGPAY_DL.Repo
                         UserName = UserDetails.UserName,
                         Email = UserDetails.Email,
                         Password = UserDetails.Password,
-                        UserRole = "Admin",
+                        UserRole = UserDetails.UserRole,
                         CreateBy = "Rafic",
                         UpdateBy = "Rafic",
                         CreateDate = DateTime.Now,
@@ -62,24 +63,27 @@ namespace PGPAY_DL.Repo
                     await _context.UserDetails.AddAsync(userDetail);
                     await _context.SaveChangesAsync();
 
-                    HostelDetail hostelDetail = new HostelDetail
+                    if (NewUser.UserRole == CommonEnum.Admin.ToString())
                     {
-                        HostelName = UserDetails.HostelName,
-                        UserId = NewUser.UserId,
-                        HostalAddress = UserDetails.HostalAddress,
-                        NoOfRooms = UserDetails.NoOfRooms,
-                        MinimumRent = UserDetails.MinimumRent,
-                        MaximunRent = UserDetails.MaximunRent,
-                        ContactNumber = UserDetails.ContactNumber,
-                        OwnerName = UserDetails.OwnerName,
-                        HostalPhotosPath = UserDetails.HostalPhotosPath,
-                        CreateBy = "Rafic",
-                        UpdateBy = "Rafic",
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now
-                    };
-                    await _context.HostelDetails.AddAsync(hostelDetail);
-                    await _context.SaveChangesAsync();
+                        HostelDetail hostelDetail = new HostelDetail
+                        {
+                            HostelName = UserDetails.HostelDetails.HostelName,
+                            UserId = NewUser.UserId,
+                            HostalAddress = UserDetails.HostelDetails.HostalAddress,
+                            NoOfRooms = UserDetails.HostelDetails.NoOfRooms,
+                            MinimumRent = UserDetails.HostelDetails.MinimumRent,
+                            MaximunRent = UserDetails.HostelDetails.MaximunRent,
+                            ContactNumber = UserDetails.HostelDetails.ContactNumber,
+                            OwnerName = UserDetails.HostelDetails.OwnerName,
+                            HostalPhotosPath = UserDetails.HostelDetails.HostalPhotosPath,
+                            CreateBy = "Rafic",
+                            UpdateBy = "Rafic",
+                            CreateDate = DateTime.Now,
+                            UpdateDate = DateTime.Now
+                        };
+                        await _context.HostelDetails.AddAsync(hostelDetail);
+                        await _context.SaveChangesAsync();
+                    }
                     response.IsSuccess = true;
                     response.Content = 1;
                 }

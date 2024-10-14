@@ -44,6 +44,11 @@ namespace PGPAY_Model.Model.UserDetails
 
         public string? Sex { get; set; }
 
+        public HostelDetails? HostelDetails { get; set; }
+
+    }
+    public class HostelDetails
+    {
         public string HostelName { get; set; } = null!;
 
         public string HostalAddress { get; set; } = null!;
@@ -59,6 +64,5 @@ namespace PGPAY_Model.Model.UserDetails
         public string? OwnerName { get; set; }
 
         public string? HostalPhotosPath { get; set; }
-
     }
 }
