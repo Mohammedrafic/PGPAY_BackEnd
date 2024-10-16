@@ -59,27 +59,8 @@ namespace PGPAY_DL.Repo
                     await _context.UserDetails.AddAsync(userDetail);
                     await _context.SaveChangesAsync();
 
-                    if (NewUser.UserRole == CommonEnum.Admin.ToString())
-                    {
-                        HostelDetail hostelDetail = new HostelDetail
-                        {
-                            HostelName = UserDetails.HostelDetails.HostelName,
-                            UserId = NewUser.UserId,
-                            HostalAddress = UserDetails.HostelDetails.HostalAddress,
-                            NoOfRooms = UserDetails.HostelDetails.NoOfRooms,
-                            MinimumRent = UserDetails.HostelDetails.MinimumRent,
-                            MaximunRent = UserDetails.HostelDetails.MaximunRent,
-                            ContactNumber = UserDetails.HostelDetails.ContactNumber,
-                            OwnerName = UserDetails.HostelDetails.OwnerName,
-                            HostalPhotosPath = UserDetails.HostelDetails.HostalPhotosPath,
-                            CreateBy = "Rafic",
-                            UpdateBy = "Rafic",
-                            CreateDate = DateTime.Now,
-                            UpdateDate = DateTime.Now
-                        };
-                        await _context.HostelDetails.AddAsync(hostelDetail);
-                        await _context.SaveChangesAsync();
-                    }
+                    await AddHostelDetails(NewUser, UserDetails);
+
                     response.IsSuccess = true;
                     response.Content = 1;
                 }
@@ -94,6 +75,53 @@ namespace PGPAY_DL.Repo
                 throw;
             }
             return response;
+        }
+
+        private async Task AddHostelDetails(User NewUser, UserDetailsdto UserDetails)
+        {
+            try
+            {
+                if (NewUser.UserRole == CommonEnum.Admin.ToString())
+                {
+                    HostelDetail hostelDetail = new HostelDetail
+                    {
+                        HostelName = UserDetails.HostelDetails.HostelName,
+                        UserId = NewUser.UserId,
+                        HostalAddress = UserDetails.HostelDetails.HostalAddress,
+                        NoOfRooms = UserDetails.HostelDetails.NoOfRooms,
+                        MinimumRent = UserDetails.HostelDetails.MinimumRent,
+                        MaximunRent = UserDetails.HostelDetails.MaximunRent,
+                        Rent = UserDetails.HostelDetails.MinimumRent,
+                        ContactNumber = UserDetails.HostelDetails.ContactNumber,
+                        OwnerName = UserDetails.HostelDetails.OwnerName,
+                        HostalPhotosPath = UserDetails.HostelDetails.HostalPhotosPath,
+                        CreateBy = "Rafic",
+                        UpdateBy = "Rafic",
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now
+                    };
+                    await _context.HostelDetails.AddAsync(hostelDetail);
+                    await _context.SaveChangesAsync();
+
+                    var hostelId = await _context.HostelDetails.Include(x => x.User).Where(x=> x.UserId == hostelDetail.UserId).Select(x => x.UserId).FirstOrDefaultAsync();
+                    //if (hostelId != 0)
+                    //{
+                    //    HostelPhoto hostelPhoto = new HostelPhoto
+                    //    {
+                    //        HostelId = hostelId,
+                    //        Imgpath = hostelPhoto.Imgpath,
+                    //        FileName = hostelPhoto.FileName,
+                    //        FileSize = hostelPhoto.FileSize
+                    //    };
+                    //    await _context.HostelPhotos.AddAsync(hostelPhoto);
+                    //    await _context.SaveChangesAsync();
+                    //}
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }
