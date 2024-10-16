@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PGPAY_DL.Context;
+namespace PGPAY_DL.Models.DB;
 
 public partial class UserDetail
 {
@@ -36,4 +36,6 @@ public partial class UserDetail
     public DateTime? CreateDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
+
+    public virtual User User { get; set; } = null!;
 }

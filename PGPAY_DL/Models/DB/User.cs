@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PGPAY_DL.Context;
+namespace PGPAY_DL.Models.DB;
 
 public partial class User
 {
@@ -22,4 +22,8 @@ public partial class User
     public DateTime? UpdateDate { get; set; }
 
     public int UserId { get; set; }
+
+    public virtual ICollection<HostelDetail> HostelDetails { get; set; } = new List<HostelDetail>();
+
+    public virtual UserDetail? UserDetail { get; set; }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PGPAY_DL.Context;
+namespace PGPAY_DL.Models.DB;
 
 public partial class HostelDetail
 {
@@ -32,4 +32,20 @@ public partial class HostelDetail
     public DateTime? CreateDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
+
+    public int? RatingId { get; set; }
+
+    public string? DiscountCode { get; set; }
+
+    public int? DiscountId { get; set; }
+
+    public decimal? Rent { get; set; }
+
+    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
+
+    public virtual ICollection<HostelPhoto> HostelPhotos { get; set; } = new List<HostelPhoto>();
+
+    public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
+
+    public virtual User User { get; set; } = null!;
 }

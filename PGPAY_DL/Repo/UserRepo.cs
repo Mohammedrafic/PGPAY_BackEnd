@@ -1,14 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PGPAY_DL.Context;
 using PGPAY_DL.IRepo;
+using PGPAY_DL.Models.DB;
 using PGPAY_Model.Enums;
 using PGPAY_Model.Model.Response;
 using PGPAY_Model.Model.UserDetails;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PGPAY_DL.Repo
 {
