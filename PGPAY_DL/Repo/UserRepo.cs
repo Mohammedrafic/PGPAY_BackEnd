@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure;
+using Microsoft.EntityFrameworkCore;
 using PGPAY_DL.Context;
 using PGPAY_DL.IRepo;
 using PGPAY_DL.Models.DB;
@@ -66,8 +67,9 @@ namespace PGPAY_DL.Repo
                 }
                 else
                 {
+                    response.Content = null;
                     response.IsSuccess = false;
-                    response.Message = "Error!!!!";
+                    response.Message = "User is already exists!!!";
                 }
             }
             catch (Exception ex)
