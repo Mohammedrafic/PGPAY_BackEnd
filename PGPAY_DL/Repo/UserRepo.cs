@@ -67,7 +67,6 @@ namespace PGPAY_DL.Repo
                 }
                 else
                 {
-                    response.Content = null;
                     response.IsSuccess = false;
                     response.Message = "User is already exists!!!";
                 }

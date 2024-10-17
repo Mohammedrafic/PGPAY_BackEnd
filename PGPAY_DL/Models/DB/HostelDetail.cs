@@ -48,4 +48,6 @@ public partial class HostelDetail
     public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 
     public virtual User User { get; set; } = null!;
+
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

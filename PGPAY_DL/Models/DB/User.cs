@@ -23,6 +23,10 @@ public partial class User
 
     public int UserId { get; set; }
 
+    public int? HostelId { get; set; }
+
+    public virtual HostelDetail? Hostel { get; set; }
+
     public virtual ICollection<HostelDetail> HostelDetails { get; set; } = new List<HostelDetail>();
 
     public virtual UserDetail? UserDetail { get; set; }

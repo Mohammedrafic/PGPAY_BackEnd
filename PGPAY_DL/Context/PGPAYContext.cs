@@ -152,6 +152,10 @@ public partial class PGPAYContext : DbContext
             entity.Property(e => e.UpdateDate).HasColumnType("datetime");
             entity.Property(e => e.UserName).HasMaxLength(200);
             entity.Property(e => e.UserRole).HasMaxLength(100);
+
+            entity.HasOne(d => d.Hostel).WithMany(p => p.Users)
+                .HasForeignKey(d => d.HostelId)
+                .HasConstraintName("FK_HostelId_Users");
         });
 
         modelBuilder.Entity<UserDetail>(entity =>

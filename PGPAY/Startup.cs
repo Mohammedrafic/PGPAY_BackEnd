@@ -31,6 +31,8 @@ namespace HRDesk
             services.AddScoped<IUserRepo, UserRepo>();
             services.AddScoped<IHostelService, HostelService>();
             services.AddScoped<IHostelRepo, HostelRepo>();
+            services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<IDashboardRepo, DashboardRepo>();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
             {
