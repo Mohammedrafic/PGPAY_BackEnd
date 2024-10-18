@@ -95,7 +95,7 @@ namespace PGPAY_DL.Repo
                         Rent = UserDetails.HostelDetails.MinimumRent,
                         ContactNumber = UserDetails.HostelDetails.ContactNumber,
                         OwnerName = UserDetails.HostelDetails.OwnerName,
-                        HostalPhotosPath = UserDetails.HostelDetails.HostalPhotosPath,
+                        //HostalPhotosPath = UserDetails.HostelDetails.HostalPhotosPath,
                         CreateBy = "Rafic",
                         UpdateBy = "Rafic",
                         CreateDate = DateTime.Now,
@@ -105,6 +105,21 @@ namespace PGPAY_DL.Repo
                     await _context.SaveChangesAsync();
 
                     var hostelId = await _context.HostelDetails.Include(x => x.User).Where(x=> x.UserId == hostelDetail.UserId).Select(x => x.UserId).FirstOrDefaultAsync();
+                    if (hostelId != 0)
+                    {
+                        foreach (var data in UserDetails.HostelDetails.HostalPhotosPath)
+                        {
+                            HostelPhoto hostelPhoto = new HostelPhoto
+                            {
+                                HostelId = hostelId,
+                                Imgpath = data.imgPath,
+                                FileName = data.Name,
+                                FileSize = data.Size
+                            };
+                            await _context.HostelPhotos.AddAsync(hostelPhoto);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                     //if (hostelId != 0)
                     //{
                     //    HostelPhoto hostelPhoto = new HostelPhoto

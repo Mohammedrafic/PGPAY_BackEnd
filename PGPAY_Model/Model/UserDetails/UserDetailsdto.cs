@@ -63,6 +63,16 @@ namespace PGPAY_Model.Model.UserDetails
 
         public string? OwnerName { get; set; }
 
-        public string? HostalPhotosPath { get; set; }
+        public List<FileMetadata> HostalPhotosPath { get; set; }
+    }
+
+    public class FileMetadata
+    {
+        public long LastModified { get; set; }
+        public DateTime LastModifiedDate { get; set; }
+        public string Name { get; set; }
+        public long Size { get; set; }
+        public string Type { get; set; }
+        public string imgPath { get; set; }
     }
 }
