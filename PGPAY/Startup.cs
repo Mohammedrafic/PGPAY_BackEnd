@@ -9,6 +9,7 @@ using PGPAY_DL.Context;
 using PGPAY_DL.IRepo;
 using PGPAY_DL.Repo;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace HRDesk
 {
@@ -77,6 +78,13 @@ namespace HRDesk
 
             var jwtToken = Configuration.GetSection("JWTTokenGeneratorModel");
             services.Configure<JWTTokenGeneratorModel>(jwtToken);
+
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = null;
+                    options.JsonSerializerOptions.MaxDepth = 64;
+                });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

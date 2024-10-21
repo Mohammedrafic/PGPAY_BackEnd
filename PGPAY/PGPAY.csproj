@@ -28,4 +28,10 @@
     <ProjectReference Include="..\PGPAY_Model\PGPAY_Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Json\" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties json_4common_1json__JsonSchema="https://json.schemastore.org/appsettings.json" /></VisualStudio></ProjectExtensions>
+
 </Project>

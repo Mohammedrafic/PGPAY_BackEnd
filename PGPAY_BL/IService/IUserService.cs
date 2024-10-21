@@ -11,5 +11,6 @@ namespace PGPAY_BL.IService
     public interface IUserService
     {
         Task<ResponseModel> AddUser(UserDetailsdto UserDetails);
+        Task<ResponseModel> GetLayoutData(string UserRole);
     }
 }

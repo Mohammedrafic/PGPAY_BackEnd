@@ -24,7 +24,11 @@ public partial class PGPAYContext : DbContext
 
     public virtual DbSet<HostelPhoto> HostelPhotos { get; set; }
 
+    public virtual DbSet<MenuItem> MenuItems { get; set; }
+
     public virtual DbSet<Rating> Ratings { get; set; }
+
+    public virtual DbSet<SubMenuItem> SubMenuItems { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -120,6 +124,16 @@ public partial class PGPAYContext : DbContext
                 .HasConstraintName("FK_HostelId_HostelPhotos");
         });
 
+        modelBuilder.Entity<MenuItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MenuItem__3214EC07BFC866ED");
+
+            entity.Property(e => e.AdminPath).HasMaxLength(255);
+            entity.Property(e => e.ImgPath).HasMaxLength(255);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.UserPath).IsUnicode(false);
+        });
+
         modelBuilder.Entity<Rating>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Rating__3214EC0759A38B02");
@@ -138,6 +152,21 @@ public partial class PGPAYContext : DbContext
                 .HasForeignKey(d => d.HostelId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_HostelId_Rating");
+        });
+
+        modelBuilder.Entity<SubMenuItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__SubMenuI__3214EC0777DDB6C3");
+
+            entity.Property(e => e.AdminPath).HasMaxLength(255);
+            entity.Property(e => e.ImgPath).HasMaxLength(255);
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.UserPath).IsUnicode(false);
+
+            entity.HasOne(d => d.MenuItem).WithMany(p => p.SubMenuItems)
+                .HasForeignKey(d => d.MenuItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__SubMenuIt__MenuI__05D8E0BE");
         });
 
         modelBuilder.Entity<User>(entity =>

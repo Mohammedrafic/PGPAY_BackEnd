@@ -14,9 +14,20 @@ namespace PGPAY.Controllers
         }
 
         [HttpPost("AddUser")]
-        public async Task<IActionResult> AddUser([FromBody]UserDetailsdto UserDetails)
+        public async Task<IActionResult> AddUser([FromForm]UserDetailsdto UserDetails)
         {
             ResponseModel response = await service.AddUser(UserDetails);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("GetLayoutData")]
+        public async Task<IActionResult> GetLayoutData(string UserRole)
+        {
+            ResponseModel response = await service.GetLayoutData(UserRole);
             if (!response.IsSuccess)
             {
                 return BadRequest(response);

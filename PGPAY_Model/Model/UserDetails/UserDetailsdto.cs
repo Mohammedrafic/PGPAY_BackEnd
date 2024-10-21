@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace PGPAY_Model.Model.UserDetails
 {
+    using Microsoft.AspNetCore.Http;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+
     public class UserDetailsdto
     {
         public string UserName { get; set; } = null!;
@@ -17,13 +23,11 @@ namespace PGPAY_Model.Model.UserDetails
         public string UserRole { get; set; } = null!;
 
         public string? CreateBy { get; set; }
-
         public string? UpdateBy { get; set; }
-
         public DateTime? CreateDate { get; set; }
-
         public DateTime? UpdateDate { get; set; }
 
+        [Required]
         public string Name { get; set; } = null!;
 
         public int? Age { get; set; }
@@ -31,22 +35,17 @@ namespace PGPAY_Model.Model.UserDetails
         public long PhoneNo { get; set; }
 
         public DateTime? DateOfBirth { get; set; }
-
         public string? MaritalStatus { get; set; }
-
         public string? State { get; set; }
-
         public string? Address { get; set; }
 
         public long? AltPhoneNo { get; set; }
-
         public string? ProofPath { get; set; }
-
         public string? Sex { get; set; }
 
         public HostelDetails? HostelDetails { get; set; }
-
     }
+
     public class HostelDetails
     {
         public string HostelName { get; set; } = null!;
@@ -63,16 +62,7 @@ namespace PGPAY_Model.Model.UserDetails
 
         public string? OwnerName { get; set; }
 
-        public List<FileMetadata> HostalPhotosPath { get; set; }
+        public List<IFormFile> HostalPhotosPath { get; set; } = new List<IFormFile>();
     }
 
-    public class FileMetadata
-    {
-        public long LastModified { get; set; }
-        public DateTime LastModifiedDate { get; set; }
-        public string Name { get; set; }
-        public long Size { get; set; }
-        public string Type { get; set; }
-        public string imgPath { get; set; }
-    }
 }

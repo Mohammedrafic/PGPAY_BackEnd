@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using PGPAY_DL.Context;
 using PGPAY_DL.IRepo;
 using PGPAY_DL.Models.DB;
@@ -13,9 +14,11 @@ namespace PGPAY_DL.Repo
     {
         private readonly ResponseModel response = new();
         private readonly PGPAYContext _context;
-        public UserRepo(PGPAYContext context)
+        private readonly IConfiguration _configuration;
+        public UserRepo(PGPAYContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
         public async Task<ResponseModel> AddUser(UserDetailsdto UserDetails)
         {
@@ -30,8 +33,8 @@ namespace PGPAY_DL.Repo
                         Email = UserDetails.Email,
                         Password = UserDetails.Password,
                         UserRole = UserDetails.UserRole,
-                        CreateBy = "Rafic",
-                        UpdateBy = "Rafic",
+                        CreateBy = _configuration["CreatedBy"],
+                        UpdateBy = _configuration["UpdatedBy"],
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now
                     };
@@ -52,8 +55,8 @@ namespace PGPAY_DL.Repo
                         Address = UserDetails.Address,
                         ProofPath = UserDetails.ProofPath,
                         Sex = UserDetails.Sex,
-                        CreateBy = "Rafic",
-                        UpdateBy = "Rafic",
+                        CreateBy = _configuration["CreatedBy"],
+                        UpdateBy = _configuration["UpdatedBy"],
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now
                     };
@@ -69,6 +72,46 @@ namespace PGPAY_DL.Repo
                 {
                     response.IsSuccess = false;
                     response.Message = "User is already exists!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return response;
+        }
+
+        public async Task<ResponseModel> GetLayoutData(string UserRole)
+        {
+            try
+            {
+                var menuItems = await _context.MenuItems
+                                   .Include(m => m.SubMenuItems)
+                                   .Select(x => new
+                                   {
+                                       x.Name,
+                                       x.IsOpen,
+                                       Path = UserRole == "Admin" ? x.AdminPath : x.UserPath,
+                                       x.ImgPath,
+                                       SubMenuItems = x.SubMenuItems.Select(s => new
+                                       {
+                                           s.Name,
+                                           s.AdminPath,
+                                           s.ImgPath,
+                                           Path = UserRole == "Admin" ? s.AdminPath : s.UserPath,
+                                           s.UserPath
+                                       }).ToList()
+                                   })
+                                   .ToListAsync();
+                if (menuItems.Count() > 0)
+                {
+                    response.IsSuccess = true;
+                    response.Content = menuItems;
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = "No Data Found!!";
                 }
             }
             catch (Exception ex)
@@ -96,30 +139,30 @@ namespace PGPAY_DL.Repo
                         ContactNumber = UserDetails.HostelDetails.ContactNumber,
                         OwnerName = UserDetails.HostelDetails.OwnerName,
                         //HostalPhotosPath = UserDetails.HostelDetails.HostalPhotosPath,
-                        CreateBy = "Rafic",
-                        UpdateBy = "Rafic",
+                        CreateBy = _configuration["CreatedBy"],
+                        UpdateBy = _configuration["UpdatedBy"],
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now
                     };
                     await _context.HostelDetails.AddAsync(hostelDetail);
                     await _context.SaveChangesAsync();
 
-                    var hostelId = await _context.HostelDetails.Include(x => x.User).Where(x=> x.UserId == hostelDetail.UserId).Select(x => x.UserId).FirstOrDefaultAsync();
-                    if (hostelId != 0)
-                    {
-                        foreach (var data in UserDetails.HostelDetails.HostalPhotosPath)
-                        {
-                            HostelPhoto hostelPhoto = new HostelPhoto
-                            {
-                                HostelId = hostelId,
-                                Imgpath = data.imgPath,
-                                FileName = data.Name,
-                                FileSize = data.Size
-                            };
-                            await _context.HostelPhotos.AddAsync(hostelPhoto);
-                            await _context.SaveChangesAsync();
-                        }
-                    }
+                    var hostelId = await _context.HostelDetails.Include(x => x.User).Where(x => x.UserId == hostelDetail.UserId).Select(x => x.UserId).FirstOrDefaultAsync();
+                    //if (hostelId != 0)
+                    //{
+                    //    foreach (var data in UserDetails.HostelDetails.HostalPhotosPath)
+                    //    {
+                    //        HostelPhoto hostelPhoto = new HostelPhoto
+                    //        {
+                    //            HostelId = hostelId,
+                    //            Imgpath = data.imgPath,
+                    //            FileName = data.Name,
+                    //            FileSize = data.Size
+                    //        };
+                    //        await _context.HostelPhotos.AddAsync(hostelPhoto);
+                    //        await _context.SaveChangesAsync();
+                    //    }
+                    //}
                     //if (hostelId != 0)
                     //{
                     //    HostelPhoto hostelPhoto = new HostelPhoto
