@@ -36,7 +36,7 @@ public partial class PGPAYContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=CIPL1318DBA\\MSSQLSERVER191;Database=PGPAY;Trusted_Connection=false;Encrypt=False;TrustServerCertificate=False;Connect Timeout=30;user id=sa;password=Colan123;");
+        => optionsBuilder.UseSqlServer("workstation id=PGPAYDEV.mssql.somee.com;packet size=4096;user id=Rafic121_SQLLogin_1;pwd=wz69wa6k9p;data source=PGPAYDEV.mssql.somee.com;persist security info=False;initial catalog=PGPAYDEV;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -127,7 +127,7 @@ public partial class PGPAYContext : DbContext
 
         modelBuilder.Entity<MenuItem>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__MenuItem__3214EC075C91FCE7");
+            entity.HasKey(e => e.Id).HasName("PK__MenuItem__3214EC07BFC866ED");
 
             entity.Property(e => e.AdminPath).HasMaxLength(255);
             entity.Property(e => e.ImgPath).HasMaxLength(255);
@@ -157,7 +157,7 @@ public partial class PGPAYContext : DbContext
 
         modelBuilder.Entity<SubMenuItem>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SubMenuI__3214EC073C0BFD22");
+            entity.HasKey(e => e.Id).HasName("PK__SubMenuI__3214EC0777DDB6C3");
 
             entity.Property(e => e.AdminPath).HasMaxLength(255);
             entity.Property(e => e.ImgPath).HasMaxLength(255);
@@ -167,7 +167,7 @@ public partial class PGPAYContext : DbContext
             entity.HasOne(d => d.MenuItem).WithMany(p => p.SubMenuItems)
                 .HasForeignKey(d => d.MenuItemId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__SubMenuIt__MenuI__02FC7413");
+                .HasConstraintName("FK__SubMenuIt__MenuI__05D8E0BE");
         });
 
         modelBuilder.Entity<User>(entity =>

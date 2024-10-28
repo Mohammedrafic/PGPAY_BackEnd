@@ -69,7 +69,7 @@ namespace PGPAY_DL.Repo
                 }
                 else
                 {
-                    photoUrls.Add(null);
+                    photoUrls.Add(photo.Imgpath);
                 }
             }
             return photoUrls;
