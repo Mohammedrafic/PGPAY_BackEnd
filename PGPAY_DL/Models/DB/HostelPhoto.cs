@@ -15,5 +15,7 @@ public partial class HostelPhoto
 
     public long? FileSize { get; set; }
 
+    public string? PhotosId { get; set; }
+
     public virtual HostelDetail Hostel { get; set; } = null!;
 }

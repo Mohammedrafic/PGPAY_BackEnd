@@ -7,11 +7,6 @@ using System.Threading.Tasks;
 
 namespace PGPAY_Model.Model.UserDetails
 {
-    using Microsoft.AspNetCore.Http;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
     public class UserDetailsdto
     {
         public string UserName { get; set; } = null!;
@@ -27,7 +22,6 @@ namespace PGPAY_Model.Model.UserDetails
         public DateTime? CreateDate { get; set; }
         public DateTime? UpdateDate { get; set; }
 
-        [Required]
         public string Name { get; set; } = null!;
 
         public int? Age { get; set; }

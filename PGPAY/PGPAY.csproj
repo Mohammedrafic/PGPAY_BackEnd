@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="Json\" />
+    <Folder Include="Files\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties json_4common_1json__JsonSchema="https://json.schemastore.org/appsettings.json" /></VisualStudio></ProjectExtensions>

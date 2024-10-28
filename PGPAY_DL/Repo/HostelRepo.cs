@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PGPAY_DL.Context;
 using PGPAY_DL.IRepo;
+using PGPAY_DL.Models.DB;
 using PGPAY_Model.Model.Response;
 
 namespace PGPAY_DL.Repo
@@ -27,7 +28,7 @@ namespace PGPAY_DL.Repo
                                                HostelDetails = HDetails,
                                                Ratings = Ratings,
                                                Discounts = Discnt,
-                                               Photos = hostelPhotosGroup.ToList(),
+                                               Photos = GetPhotos(hostelPhotosGroup.ToList()),
                                                HostelFacility = _context.HostelFacilities.ToList(),
                                            }).ToListAsync();
                 HostelDetails.ForEach(x =>
@@ -51,6 +52,27 @@ namespace PGPAY_DL.Repo
                 throw;
             }
             return response;
+        }
+        private static List<string> GetPhotos(List<HostelPhoto> hostelPhotos)
+        {
+            var photoUrls = new List<string>();
+            foreach (var photo in hostelPhotos)
+            {
+                var photoPath = Path.Combine(Directory.GetCurrentDirectory(), "Files", photo.FileName);
+
+                if (System.IO.File.Exists(photoPath))
+                {
+                    var bytes = System.IO.File.ReadAllBytes(photoPath);
+                    var base64Image = Convert.ToBase64String(bytes);
+                    var imageUrl = $"data:image/jpeg;base64,{base64Image}";
+                    photoUrls.Add(imageUrl);
+                }
+                else
+                {
+                    photoUrls.Add(null);
+                }
+            }
+            return photoUrls;
         }
     }
 }

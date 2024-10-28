@@ -8,14 +8,17 @@ namespace PGPAY.Controllers
     public class LoginController : Controller
     {
         private readonly ILoginService service;
-        public LoginController(ILoginService service)
+        private readonly IConfiguration _c;
+        public LoginController(ILoginService service, IConfiguration c)
         {
             this.service = service;
+            _c = c;
         }
 
         [HttpGet("Login")]
         public async Task<IActionResult> Login(string Email, string Password)
         {
+            var data = _c["Users:CreatedBy"];
             ResponseModel response = await service.Login(Email, Password);
             if (!response.IsSuccess)
             {

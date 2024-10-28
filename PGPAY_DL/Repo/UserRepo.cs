@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using PGPAY_DL.Context;
@@ -138,7 +139,6 @@ namespace PGPAY_DL.Repo
                         Rent = UserDetails.HostelDetails.MinimumRent,
                         ContactNumber = UserDetails.HostelDetails.ContactNumber,
                         OwnerName = UserDetails.HostelDetails.OwnerName,
-                        //HostalPhotosPath = UserDetails.HostelDetails.HostalPhotosPath,
                         CreateBy = _configuration["CreatedBy"],
                         UpdateBy = _configuration["UpdatedBy"],
                         CreateDate = DateTime.Now,
@@ -147,35 +147,88 @@ namespace PGPAY_DL.Repo
                     await _context.HostelDetails.AddAsync(hostelDetail);
                     await _context.SaveChangesAsync();
 
-                    var hostelId = await _context.HostelDetails.Include(x => x.User).Where(x => x.UserId == hostelDetail.UserId).Select(x => x.UserId).FirstOrDefaultAsync();
-                    //if (hostelId != 0)
-                    //{
-                    //    foreach (var data in UserDetails.HostelDetails.HostalPhotosPath)
-                    //    {
-                    //        HostelPhoto hostelPhoto = new HostelPhoto
-                    //        {
-                    //            HostelId = hostelId,
-                    //            Imgpath = data.imgPath,
-                    //            FileName = data.Name,
-                    //            FileSize = data.Size
-                    //        };
-                    //        await _context.HostelPhotos.AddAsync(hostelPhoto);
-                    //        await _context.SaveChangesAsync();
-                    //    }
-                    //}
-                    //if (hostelId != 0)
-                    //{
-                    //    HostelPhoto hostelPhoto = new HostelPhoto
-                    //    {
-                    //        HostelId = hostelId,
-                    //        Imgpath = hostelPhoto.Imgpath,
-                    //        FileName = hostelPhoto.FileName,
-                    //        FileSize = hostelPhoto.FileSize
-                    //    };
-                    //    await _context.HostelPhotos.AddAsync(hostelPhoto);
-                    //    await _context.SaveChangesAsync();
-                    //}
+                    var hostelId = await _context.HostelDetails.Include(x => x.User).Where(x => x.UserId == hostelDetail.UserId).Select(x => x.HostelId).FirstOrDefaultAsync();
+                    if (hostelId != 0)
+                    {
+                        NewUser.HostelId = hostelId;
+                        _= _context.Users.Update(NewUser);
+                        await _context.SaveChangesAsync();
+                        await UploadFiles(hostelId, UserDetails.HostelDetails.HostalPhotosPath);
+                    }
+                    await RatingsandDiscount(hostelId, UserDetails);
                 }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        private async Task<bool> UploadFiles(int hostelId, List<IFormFile> files)
+        {
+            try
+            {
+                if (files == null || files.Count == 0)
+                    return false;
+                List<HostelPhoto> HostelPic = new List<HostelPhoto>();
+                foreach (var file in files)
+                {
+                    var guid = Guid.NewGuid();
+                    var FileName = file.FileName + "#" + guid;
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", FileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    HostelPhoto hostelPhoto = new HostelPhoto
+                    {
+                        HostelId = hostelId,
+                        Imgpath = filePath,
+                        FileName = FileName,
+                        FileSize = file.Length,
+                        PhotosId = guid.ToString()
+                    };
+                    HostelPic.Add(hostelPhoto);
+                }
+                if (HostelPic.Count() > 0)
+                {
+                    await _context.HostelPhotos.AddRangeAsync(HostelPic);
+                    await _context.SaveChangesAsync();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        private async Task<bool> RatingsandDiscount(int hostelId, UserDetailsdto UserDetails)
+        {
+            try
+            {
+                Rating rating = new Rating
+                {
+                    HostelId = hostelId,
+                    TotalRatings = 0,
+                    Status = "Good",
+                    Starrate = "4.0"
+                };
+                await _context.Ratings.AddAsync(rating);
+
+                Discount discount = new Discount
+                {
+                    HostelId = hostelId,
+                    DiscountCode = null,
+                    Offerper = "50% off"
+                };
+
+                await _context.Discounts.AddAsync(discount);
+                await _context.SaveChangesAsync();
+
+                return true;
             }
             catch (Exception ex)
             {
