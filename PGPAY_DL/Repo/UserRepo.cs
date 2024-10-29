@@ -170,31 +170,41 @@ namespace PGPAY_DL.Repo
             {
                 if (files == null || files.Count == 0)
                     return false;
-                List<HostelPhoto> HostelPic = new List<HostelPhoto>();
+
+                string fileDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Files");
+
+                Directory.CreateDirectory(fileDirectory);
+
+                List<HostelPhoto> hostelPhotos = new List<HostelPhoto>();
+
                 foreach (var file in files)
                 {
                     var guid = Guid.NewGuid();
-                    var FileName = file.FileName + "#" + guid;
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", FileName);
+                    string fileExtension = Path.GetExtension(file.FileName);
+                    string uniqueFileName = $"media_{DateTime.Now:yyyyMMdd_HHmmss}_{guid}{fileExtension}";
+                    string filePath = Path.Combine(fileDirectory, uniqueFileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await file.CopyToAsync(stream);
                     }
 
+                    string fileUrl = $"{_configuration["BaseUrl"]}/Files/{uniqueFileName}";
+
                     HostelPhoto hostelPhoto = new HostelPhoto
                     {
                         HostelId = hostelId,
-                        Imgpath = filePath,
-                        FileName = FileName,
+                        Imgpath = fileUrl, 
+                        FileName = uniqueFileName,
                         FileSize = file.Length,
                         PhotosId = guid.ToString()
                     };
-                    HostelPic.Add(hostelPhoto);
+                    hostelPhotos.Add(hostelPhoto);
                 }
-                if (HostelPic.Count() > 0)
+
+                if (hostelPhotos.Count > 0)
                 {
-                    await _context.HostelPhotos.AddRangeAsync(HostelPic);
+                    await _context.HostelPhotos.AddRangeAsync(hostelPhotos);
                     await _context.SaveChangesAsync();
                 }
 
