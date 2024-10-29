@@ -105,12 +105,7 @@ namespace HRDesk
                 .AllowAnyMethod()
                 .SetIsOriginAllowed((host) => true)
                 .AllowCredentials());
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(
-                Path.Combine(Directory.GetCurrentDirectory(), "Files")),
-                RequestPath = "/Files"
-            });
+
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseStaticFiles();
