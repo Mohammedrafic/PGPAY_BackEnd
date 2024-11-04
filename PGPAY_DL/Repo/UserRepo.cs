@@ -153,7 +153,7 @@ namespace PGPAY_DL.Repo
                         NewUser.HostelId = hostelId;
                         _= _context.Users.Update(NewUser);
                         await _context.SaveChangesAsync();
-                        await UploadFiles(hostelId, UserDetails.HostelDetails.HostalPhotosPath);
+                        await UploadFiles(hostelId, null); //UserDetails.HostelDetails.HostalPhotosPath);
                     }
                     await RatingsandDiscount(hostelId, UserDetails);
                 }
@@ -164,7 +164,7 @@ namespace PGPAY_DL.Repo
             }
         }
 
-        private async Task<bool> UploadFiles(int hostelId, List<IFormFile> files)
+        private async Task<bool> UploadFiles(int hostelId, List<IFormFile>? files)
         {
             try
             {

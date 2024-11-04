@@ -69,7 +69,7 @@ namespace PGPAY_DL.Repo
                 }
                 else
                 {
-                    photoUrls.Add(photo.Imgpath);
+                    photoUrls.Add("assets\\images\\beds-hostel-affordable-housing-36997317.webp");
                 }
             }
             return photoUrls;
