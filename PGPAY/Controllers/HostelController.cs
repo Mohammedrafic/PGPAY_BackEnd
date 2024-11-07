@@ -22,5 +22,16 @@ namespace PGPAY.Controllers
             }
             return Ok(response);
         }
+
+        [HttpGet("GetHostelRequest/{UserId}")]
+        public async Task<IActionResult> GetHostelRequest(int UserId)
+        {
+            ResponseModel response = await service.GetHostelRequestById(UserId);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }

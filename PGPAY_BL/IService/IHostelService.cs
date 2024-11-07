@@ -10,5 +10,6 @@ namespace PGPAY_BL.IService
     public interface IHostelService
     {
         Task<ResponseModel> GetAllHostelDetails();
+        Task<ResponseModel> GetHostelRequestById(int UserId);
     }
 }

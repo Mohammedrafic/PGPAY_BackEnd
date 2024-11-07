@@ -24,6 +24,8 @@ public partial class PGPAYContext : DbContext
 
     public virtual DbSet<HostelPhoto> HostelPhotos { get; set; }
 
+    public virtual DbSet<HostelRequest> HostelRequests { get; set; }
+
     public virtual DbSet<MenuItem> MenuItems { get; set; }
 
     public virtual DbSet<Rating> Ratings { get; set; }
@@ -123,6 +125,38 @@ public partial class PGPAYContext : DbContext
                 .HasForeignKey(d => d.HostelId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_HostelId_HostelPhotos");
+        });
+
+        modelBuilder.Entity<HostelRequest>(entity =>
+        {
+            entity.HasKey(e => e.RequestId).HasName("PK__HostelRe__33A8519A47D54E40");
+
+            entity.Property(e => e.RequestId).HasColumnName("RequestID");
+            entity.Property(e => e.AssignedTo).HasMaxLength(100);
+            entity.Property(e => e.ContactDetails).HasMaxLength(100);
+            entity.Property(e => e.HostelId).HasColumnName("HostelID");
+            entity.Property(e => e.IsResolved).HasDefaultValueSql("((0))");
+            entity.Property(e => e.LastUpdated)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.RequestDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.RequestType).HasMaxLength(50);
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("('Pending')");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Hostel).WithMany(p => p.HostelRequests)
+                .HasForeignKey(d => d.HostelId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HostelRequests_HostelId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.HostelRequests)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HostelRequests_UserId");
         });
 
         modelBuilder.Entity<MenuItem>(entity =>

@@ -3,6 +3,7 @@ using PGPAY_DL.Context;
 using PGPAY_DL.IRepo;
 using PGPAY_DL.Models.DB;
 using PGPAY_Model.Model.Response;
+using PGPAY_Model.Model.UserDetails;
 
 namespace PGPAY_DL.Repo
 {
@@ -73,6 +74,52 @@ namespace PGPAY_DL.Repo
                 }
             }
             return photoUrls;
+        }
+
+        public async Task<ResponseModel> GetHostelRequestById(int UserID)
+        {
+            try
+             {
+                var hostelIds = await _context.HostelDetails
+                                           .Where(x => x.UserId == UserID)
+                                           .Select(x => x.HostelId)
+                                           .ToListAsync();
+
+                var request = await (from hr in _context.HostelRequests
+                                     join hd in _context.HostelDetails on hr.UserId equals hd.UserId into hdGroup
+                                     from hd in hdGroup.DefaultIfEmpty()
+                                     join ud in _context.UserDetails on hd.UserId equals ud.UserId into udGroup
+                                     from ud in udGroup.DefaultIfEmpty()
+                                     where hostelIds.Contains(hr.HostelId) // Check for hostelIds in the list
+                                     select new
+                                     {
+                                         RequestId = hr.RequestId,
+                                         RequestType = hr.RequestType,
+                                         UserName = ud.Name,
+                                         RequestDate = hr.RequestDate,
+                                         Status = hr.Status,
+                                         Description = hr.Description,
+                                         AssignedTo = hr.AssignedTo,
+                                         Response = hr.Response,
+                                         ContactDetails = ud.PhoneNo,
+                                         LastUpdated = hr.LastUpdated
+                                     }).Distinct().ToListAsync();
+                if (request.Count() > 0)
+                {
+                    response.IsSuccess = true;
+                    response.Content = request;
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Error!!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return response;
         }
     }
 }

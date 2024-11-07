@@ -12,9 +12,9 @@ namespace PGPAY_BL.Service
             _repo = repo;
         }
 
-        public async Task<ResponseModel> GetUserDetails(int HostelId)
+        public async Task<ResponseModel> GetUserDetails(int UserId)
         {
-            return await _repo.GetUserDetails(HostelId);
+            return await _repo.GetUserDetails(UserId);
         }
     }
 }

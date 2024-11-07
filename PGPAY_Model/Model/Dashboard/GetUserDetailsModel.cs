@@ -8,26 +8,12 @@ namespace PGPAY_Model.Model.Dashboard
 {
     public class GetUserDetailsModel
     {
-        public int UserId { get; set; }
-
-        public string Name { get; set; } = null!;
-
-        public int? Age { get; set; }
-
-        public long PhoneNo { get; set; }
-
-        public DateTime? DateOfBirth { get; set; }
-
-        public string? MaritalStatus { get; set; }
-
-        public string? State { get; set; }
-
-        public string? Address { get; set; }
-
-        public long? AltPhoneNo { get; set; }
-
-        public string? Sex { get; set; }
-
-        public DateTime? CreateDate { get; set; }
+        public int HostelId { get; set; }
+        public string HostelName { get; set; } = null!;
+        public string HostelAddress { get; set; }
+        public int NoofRooms { get; set; }
+        public decimal? Rent { get; set; }
+        public string? DiscountPer { get; set; }
+        public decimal? MinimunmRent { get; set; }
     }
 }

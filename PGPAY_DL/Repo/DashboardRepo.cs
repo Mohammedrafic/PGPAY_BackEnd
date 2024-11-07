@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PGPAY_DL.Context;
 using PGPAY_DL.IRepo;
+using PGPAY_DL.Models.DB;
 using PGPAY_Model.Model.Dashboard;
 using PGPAY_Model.Model.Response;
 
@@ -15,32 +16,42 @@ namespace PGPAY_DL.Repo
             _context = context;
         }
 
-        public async Task<ResponseModel> GetUserDetails(int HostelId)
+        public async Task<ResponseModel> GetUserDetails(int UserId)
         {
             try
             {
-                var UserData = await (from U in _context.Users
-                                      join UD in _context.UserDetails on U.UserId equals UD.UserId
-                                      join H in _context.HostelDetails on U.HostelId equals H.HostelId
-                                      where H.HostelId == HostelId
-                                      select new GetUserDetailsModel
-                                      {
-                                          UserId = U.UserId,
-                                          Name = UD.Name,
-                                          Age = UD.Age,
-                                          PhoneNo = UD.PhoneNo,
-                                          DateOfBirth = UD.DateOfBirth,
-                                          MaritalStatus = UD.MaritalStatus,
-                                          State = UD.State,
-                                          Address = UD.Address,
-                                          AltPhoneNo = UD.AltPhoneNo,
-                                          Sex = UD.Sex,
-                                          CreateDate = UD.CreateDate
-                                      }).ToListAsync();
-                if (UserData.Count() > 0)
+                var hostelIds = await _context.HostelDetails
+                                           .Where(x => x.UserId == UserId)
+                                           .Select(x => x.HostelId)
+                                           .ToListAsync();
+                var TotalUser = _context.UserDetails.Where(x => x.UserId == UserId).Count();
+
+                var HostelData = await (from H in _context.HostelDetails
+                                        join D in _context.Discounts on H.HostelId equals D.HostelId into DGroup
+                                        from D in DGroup.DefaultIfEmpty()
+                                        where hostelIds.Contains(H.HostelId)
+                                        select new GetUserDetailsModel
+                                        {
+                                            HostelId = H.HostelId,
+                                            HostelName = H.HostelName,
+                                            HostelAddress = H.HostalAddress,
+                                            NoofRooms = H.NoOfRooms,
+                                            Rent = H.Rent,
+                                            DiscountPer = D.Offerper,
+                                            MinimunmRent = H.MinimumRent
+                                        }).ToListAsync();
+                if (HostelData.Count() > 0)
                 {
                     response.IsSuccess = true;
-                    response.Content = UserData;
+                    response.Content = new
+                    {
+                        HostelDetails = HostelData,
+                        TotalUser = TotalUser,
+                        NoOfHostels = HostelData.Count(),
+                        TotalIncome = HostelData.Sum(x => x.MinimunmRent),
+                        PendingPaymentCount = 1,
+                        minamt = HostelData.Min(x => x.MinimunmRent)
+                    };
                 }
                 else
                 {

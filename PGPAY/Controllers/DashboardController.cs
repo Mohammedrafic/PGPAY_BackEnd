@@ -12,9 +12,9 @@ namespace PGPAY.Controllers
             this.service = service;
         }
         [HttpGet("GetUserDetails")]
-        public async Task<IActionResult> GetUserDetails(int HostelId)
+        public async Task<IActionResult> GetUserDetails(int UserId)
         {
-            ResponseModel response = await service.GetUserDetails(HostelId);
+            ResponseModel response = await service.GetUserDetails(UserId);
             if (!response.IsSuccess)
             {
                 return BadRequest(response);
