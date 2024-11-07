@@ -47,6 +47,8 @@ public partial class HostelDetail
 
     public virtual ICollection<HostelRequest> HostelRequests { get; set; } = new List<HostelRequest>();
 
+    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
     public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 
     public virtual User User { get; set; } = null!;

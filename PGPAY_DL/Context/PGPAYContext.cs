@@ -28,6 +28,8 @@ public partial class PGPAYContext : DbContext
 
     public virtual DbSet<MenuItem> MenuItems { get; set; }
 
+    public virtual DbSet<Payment> Payments { get; set; }
+
     public virtual DbSet<Rating> Ratings { get; set; }
 
     public virtual DbSet<SubMenuItem> SubMenuItems { get; set; }
@@ -38,7 +40,7 @@ public partial class PGPAYContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("workstation id=PGPAYDEV.mssql.somee.com;packet size=4096;user id=Rafic121_SQLLogin_1;pwd=wz69wa6k9p;data source=PGPAYDEV.mssql.somee.com;persist security info=False;initial catalog=PGPAYDEV;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=CIPL1318DBA\\MSSQLSERVER191;Database=PGPAY;Trusted_Connection=false;Encrypt=False;TrustServerCertificate=False;Connect Timeout=30;user id=sa;password=Colan123;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -129,7 +131,7 @@ public partial class PGPAYContext : DbContext
 
         modelBuilder.Entity<HostelRequest>(entity =>
         {
-            entity.HasKey(e => e.RequestId).HasName("PK__HostelRe__33A8519A47D54E40");
+            entity.HasKey(e => e.RequestId).HasName("PK__HostelRe__33A8519ADE6B79AF");
 
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
             entity.Property(e => e.AssignedTo).HasMaxLength(100);
@@ -161,12 +163,60 @@ public partial class PGPAYContext : DbContext
 
         modelBuilder.Entity<MenuItem>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__MenuItem__3214EC07BFC866ED");
+            entity.HasKey(e => e.Id).HasName("PK__MenuItem__3214EC075C91FCE7");
 
             entity.Property(e => e.AdminPath).HasMaxLength(255);
             entity.Property(e => e.ImgPath).HasMaxLength(255);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UserPath).IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A5866BFD4C3");
+
+            entity.ToTable("Payment");
+
+            entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
+            entity.Property(e => e.AdvanceAmount)
+                .HasDefaultValueSql("((0))")
+                .HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.HostelId).HasColumnName("HostelID");
+            entity.Property(e => e.IsAdvancePayment).HasDefaultValueSql("((0))");
+            entity.Property(e => e.PaymentDate).HasColumnType("date");
+            entity.Property(e => e.PaymentMethod)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.PaymentStatus)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValueSql("('Pending')");
+            entity.Property(e => e.RemainingBalance)
+                .HasDefaultValueSql("((0))")
+                .HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Remarks).HasMaxLength(255);
+            entity.Property(e => e.TransactionId)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("TransactionID");
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Hostel).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.HostelId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Payment_HostelId");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Payment_UserId");
         });
 
         modelBuilder.Entity<Rating>(entity =>
@@ -191,7 +241,7 @@ public partial class PGPAYContext : DbContext
 
         modelBuilder.Entity<SubMenuItem>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SubMenuI__3214EC0777DDB6C3");
+            entity.HasKey(e => e.Id).HasName("PK__SubMenuI__3214EC073C0BFD22");
 
             entity.Property(e => e.AdminPath).HasMaxLength(255);
             entity.Property(e => e.ImgPath).HasMaxLength(255);
@@ -201,7 +251,7 @@ public partial class PGPAYContext : DbContext
             entity.HasOne(d => d.MenuItem).WithMany(p => p.SubMenuItems)
                 .HasForeignKey(d => d.MenuItemId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__SubMenuIt__MenuI__05D8E0BE");
+                .HasConstraintName("FK__SubMenuIt__MenuI__02FC7413");
         });
 
         modelBuilder.Entity<User>(entity =>

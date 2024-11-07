@@ -31,5 +31,7 @@ public partial class User
 
     public virtual ICollection<HostelRequest> HostelRequests { get; set; } = new List<HostelRequest>();
 
+    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
     public virtual UserDetail? UserDetail { get; set; }
 }
