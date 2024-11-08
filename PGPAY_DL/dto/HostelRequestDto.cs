@@ -27,6 +27,7 @@ namespace PGPAY_DL.dto
         public decimal? AdvanceAmount { get; set; } 
         public decimal? RemainingAmount { get; set; } 
         public string? Remarks { get; set; } 
-        public DateTime? UpdatedAt { get; set; } 
+        public DateTime? UpdatedAt { get; set; }
+        public int? HostelId { get; set; }
     }
 }

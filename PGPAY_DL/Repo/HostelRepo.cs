@@ -77,24 +77,26 @@ namespace PGPAY_DL.Repo
             return photoUrls;
         }
 
-        public async Task<ResponseModel> GetHostelRequestById(int UserID)
+        public async Task<ResponseModel> GetHostelRequestById(int userID)
         {
+            var response = new ResponseModel();
+
             try
             {
+                // Fetch all hostel IDs associated with the user
                 var hostelIds = await _context.HostelDetails
-                                           .Where(x => x.UserId == UserID)
-                                           .Select(x => x.HostelId)
-                                           .ToListAsync();
+                                              .Where(x => x.UserId == userID)
+                                              .Select(x => x.HostelId)
+                                              .ToListAsync();
+
+                // Fetch the main request data
                 var request = await (from hr in _context.HostelRequests
-                                     join hd in _context.HostelDetails on hr.UserId equals hd.UserId into hdGroup
-                                     from hd in hdGroup.DefaultIfEmpty()
-                                     join ud in _context.UserDetails on hd.UserId equals ud.UserId into udGroup
-                                     from ud in udGroup.DefaultIfEmpty()
-                                     join p in _context.Payments on hd.UserId equals p.UserId into pGroup
-                                     from p in pGroup.DefaultIfEmpty()
+                                     join hd in _context.HostelDetails on hr.HostelId equals hd.HostelId
+                                     join ud in _context.UserDetails on hd.UserId equals ud.UserId
                                      where hostelIds.Contains(hr.HostelId)
                                      select new HostelRequestDto
                                      {
+                                         HostelId = hr.HostelId,
                                          RequestId = hr.RequestId,
                                          HostelName = hd.HostelName,
                                          RequestType = hr.RequestType,
@@ -105,36 +107,53 @@ namespace PGPAY_DL.Repo
                                          AssignedTo = hr.AssignedTo,
                                          Response = hr.Response,
                                          ContactDetails = ud.PhoneNo,
-                                         LastUpdated = hr.LastUpdated,
-                                         Amount = p.Amount,
-                                         PaymentMethod = p.PaymentMethod,
-                                         TransactionId = p.TransactionId,
-                                         IsAdvancedPayment = p.IsAdvancePayment,
-                                         PaymentStatus = p.PaymentStatus,
-                                         AdvanceAmount = p.AdvanceAmount,
-                                         RemainingAmount = p.RemainingBalance,
-                                         Remarks = p.Remarks,
-                                         UpdatedAt = p.UpdatedAt
+                                         LastUpdated = hr.LastUpdated
                                      })
                                      .GroupBy(x => x.RequestId)
                                      .Select(g => g.First())
                                      .ToListAsync();
-                if (request.Count() > 0)
+
+                var payments = _context.Payments
+                                       .Where(x => hostelIds.Contains(x.HostelId))
+                                       .AsEnumerable()
+                                       .Select(p => new
+                                       {
+                                           HostelName = request.FirstOrDefault(x => x.HostelId == p.HostelId)?.HostelName,
+                                           UserName = request.FirstOrDefault(x => x.HostelId == p.HostelId)?.UserName,
+                                           Amount = p.Amount,
+                                           PaymentMethod = p.PaymentMethod,
+                                           TransactionId = p.TransactionId,
+                                           IsAdvancedPayment = p.IsAdvancePayment,
+                                           PaymentStatus = p.PaymentStatus,
+                                           AdvanceAmount = p.AdvanceAmount,
+                                           RemainingAmount = p.RemainingBalance,
+                                           Remarks = p.Remarks,
+                                           UpdatedAt = p.UpdatedAt
+                                       }).ToList();
+
+                if (request.Any())
                 {
                     response.IsSuccess = true;
-                    response.Content = request;
+                    response.Content = new
+                    {
+                        Details = request,
+                        Payment = payments
+                    };
                 }
                 else
                 {
                     response.IsSuccess = false;
-                    response.Message = "Error!!!!";
+                    response.Message = "No requests found for the specified User ID.";
                 }
             }
             catch (Exception ex)
             {
-                throw;
+                response.IsSuccess = false;
+                response.Message = $"An error occurred: {ex.Message}";
             }
+
             return response;
         }
+
     }
 }
