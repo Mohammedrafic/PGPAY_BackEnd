@@ -155,5 +155,44 @@ namespace PGPAY_DL.Repo
             return response;
         }
 
+        public async Task<ResponseModel> GetHostelDetailsById(int UserID)
+        {
+            try
+            {
+                var HostelDetails = await (from HDetails in _context.HostelDetails.AsNoTracking()
+                                           join Ratings in _context.Ratings on HDetails.HostelId equals Ratings.HostelId
+                                           join Discnt in _context.Discounts on HDetails.HostelId equals Discnt.HostelId
+                                           join Photos in _context.HostelPhotos on HDetails.HostelId equals Photos.HostelId into hostelPhotosGroup
+                                           where HDetails.UserId == UserID
+                                           select new
+                                           {
+                                               HostelDetails = HDetails,
+                                               Ratings = Ratings,
+                                               Discounts = Discnt,
+                                               Photos = GetPhotos(hostelPhotosGroup.ToList()),
+                                               HostelFacility = _context.HostelFacilities.ToList(),
+                                           }).ToListAsync();
+                HostelDetails.ForEach(x =>
+                {
+                    int offerPercentage = int.Parse(x.Discounts.Offerper.Replace("% off", ""));
+                    x.HostelDetails.Rent = (x.HostelDetails.MinimumRent * offerPercentage) / 100;
+                });
+                if (HostelDetails.Count() > 0)
+                {
+                    response.IsSuccess = true;
+                    response.Content = HostelDetails;
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Error!!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return response;
+        }
     }
 }

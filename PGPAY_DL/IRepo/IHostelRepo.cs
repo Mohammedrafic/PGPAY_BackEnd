@@ -10,6 +10,7 @@ namespace PGPAY_DL.IRepo
     public interface IHostelRepo
     {
         Task<ResponseModel> GetAllHostelDetails();
+        Task<ResponseModel> GetHostelDetailsById(int UserID);
         Task<ResponseModel> GetHostelRequestById(int UserID);
     }
 }
