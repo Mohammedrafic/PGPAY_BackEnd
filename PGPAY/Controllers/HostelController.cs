@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PGPAY_BL.IService;
 using PGPAY_BL.Service;
+using PGPAY_DL.dto;
 using PGPAY_Model.Model.Response;
 
 namespace PGPAY.Controllers
@@ -38,6 +39,17 @@ namespace PGPAY.Controllers
         public async Task<IActionResult> GetHostelDetailsById(int UserID)
         {
             ResponseModel response = await service.GetHostelDetailsById(UserID);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("HostelBookingRequest")]
+        public async Task<IActionResult> HostelBookingRequest([FromBody]BookingRequestDto bookingRequest)
+        {
+            ResponseModel response = await service.HostelBookingRequest(bookingRequest);
             if (!response.IsSuccess)
             {
                 return BadRequest(response);

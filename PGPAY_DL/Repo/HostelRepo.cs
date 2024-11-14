@@ -194,5 +194,75 @@ namespace PGPAY_DL.Repo
             }
             return response;
         }
+
+        public async Task<ResponseModel> HostelBookingRequest(BookingRequestDto bookingRequest)
+        {
+            try
+            {
+                var exisingReq = await _context.HostelRequests.Where(x => x.UserId == bookingRequest.UserId && x.RequestType == "Booking").ToListAsync();
+                if (exisingReq.Count() > 0)
+                {
+                    var Payment = await _context.Payments.Where(x => x.UserId == bookingRequest.UserId && x.PaymentStatus == "Completed" && x.HostelId == bookingRequest.HostelId).FirstOrDefaultAsync();
+                    if (Payment != null && Payment.IsAdvancePayment == true)
+                    {
+                        response.IsSuccess = true;
+                        response.Message = "User already booked this Hostel";
+                    }
+                }
+                else
+                {
+                    HostelRequest hostelRequest = new HostelRequest
+                    {
+                        RequestType = bookingRequest.RequestType,
+                        HostelId = bookingRequest.HostelId,
+                        UserId = bookingRequest.UserId,
+                        RequestDate = DateTime.Now,
+                        Status = bookingRequest.Status,
+                        Description = bookingRequest.Description,
+                        AssignedTo = bookingRequest.AssignedTo,
+                        Response = bookingRequest.Response,
+                        ContactDetails = bookingRequest.ContactDetails,
+                        IsResolved = bookingRequest.IsResolved,
+                        LastUpdated = DateTime.Now
+                    };
+                    await _context.AddAsync(hostelRequest);
+                    await _context.SaveChangesAsync();
+
+                    if (bookingRequest.payment != null)
+                    {
+                        var existPayment = await _context.Payments.Where(x => x.UserId == bookingRequest.UserId && x.PaymentStatus == "Completed" && x.HostelId == bookingRequest.HostelId).FirstOrDefaultAsync();
+
+                        if (existPayment == null)
+                        {
+                            Payment payment = new Payment
+                            {
+                                HostelId = bookingRequest.payment.HostelId,
+                                UserId = bookingRequest.payment.UserId,
+                                PaymentDate = DateTime.Now,
+                                Amount = bookingRequest.payment.Amount,
+                                PaymentMethod = bookingRequest.payment.PaymentMethod,
+                                TransactionId = bookingRequest.payment.TransactionId,
+                                PaymentStatus = bookingRequest.payment.PaymentStatus,
+                                IsAdvancePayment = bookingRequest.payment.IsAdvancePayment,
+                                AdvanceAmount = bookingRequest.payment.AdvanceAmount,
+                                RemainingBalance = bookingRequest.payment.RemainingBalance,
+                                Remarks = bookingRequest.payment.Remarks,
+                                CreatedAt = DateTime.Now,
+                                UpdatedAt = DateTime.Now
+                            };
+                            await _context.AddAsync(payment);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    response.IsSuccess = true;
+                    response.Content = hostelRequest.HostelId;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return response;
+        }
     }
 }

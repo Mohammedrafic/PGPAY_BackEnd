@@ -1,5 +1,7 @@
 ﻿using PGPAY_BL.IService;
+using PGPAY_DL.dto;
 using PGPAY_DL.IRepo;
+using PGPAY_DL.Models.DB;
 using PGPAY_DL.Repo;
 using PGPAY_Model.Model.Response;
 
@@ -27,6 +29,11 @@ namespace PGPAY_BL.Service
         {
             return await _repo.GetHostelRequestById(UserId);
 
+        }
+
+        public async Task<ResponseModel> HostelBookingRequest(BookingRequestDto bookingRequest)
+        {
+            return await _repo.HostelBookingRequest(bookingRequest);
         }
     }
 }
