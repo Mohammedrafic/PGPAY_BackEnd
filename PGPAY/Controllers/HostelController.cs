@@ -46,10 +46,21 @@ namespace PGPAY.Controllers
             return Ok(response);
         }
 
-        [HttpGet("HostelBookingRequest")]
+        [HttpPost("HostelBookingRequest")]
         public async Task<IActionResult> HostelBookingRequest([FromBody]BookingRequestDto bookingRequest)
         {
             ResponseModel response = await service.HostelBookingRequest(bookingRequest);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("GetHostelFullDetailsById")]
+        public async Task<IActionResult> GetHostelFullDetailsById(int HostelID)
+        {
+            ResponseModel response = await service.GetHostelFullDetailsById(HostelID);
             if (!response.IsSuccess)
             {
                 return BadRequest(response);

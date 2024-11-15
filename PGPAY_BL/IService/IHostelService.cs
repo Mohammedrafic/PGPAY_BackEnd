@@ -13,6 +13,7 @@ namespace PGPAY_BL.IService
         Task<ResponseModel> GetAllHostelDetails();
         Task<ResponseModel> GetHostelDetailsById(int UserId);
         Task<ResponseModel> GetHostelRequestById(int UserId);
+        Task<ResponseModel> GetHostelFullDetailsById(int HostelID);
         Task<ResponseModel> HostelBookingRequest(BookingRequestDto bookingRequest);
     }
 }

@@ -8,6 +8,7 @@ namespace PGPAY_DL.dto
 {
     public class HostelRequestDto
     {
+        public int UserID { get; set; }
         public int? RequestId { get; set; }  
         public string? HostelName { get; set; } 
         public string? RequestType { get; set; } 

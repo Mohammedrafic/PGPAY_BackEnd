@@ -92,10 +92,11 @@ namespace PGPAY_DL.Repo
                 // Fetch the main request data
                 var request = await (from hr in _context.HostelRequests
                                      join hd in _context.HostelDetails on hr.HostelId equals hd.HostelId
-                                     join ud in _context.UserDetails on hd.UserId equals ud.UserId
+                                     join ud in _context.UserDetails on hr.UserId equals ud.UserId
                                      where hostelIds.Contains(hr.HostelId)
                                      select new HostelRequestDto
                                      {
+                                         UserID = hr.UserId,
                                          HostelId = hr.HostelId,
                                          RequestId = hr.RequestId,
                                          HostelName = hd.HostelName,
@@ -118,8 +119,8 @@ namespace PGPAY_DL.Repo
                                        .AsEnumerable()
                                        .Select(p => new
                                        {
-                                           HostelName = request.FirstOrDefault(x => x.HostelId == p.HostelId)?.HostelName,
-                                           UserName = request.FirstOrDefault(x => x.HostelId == p.HostelId)?.UserName,
+                                           HostelName = request.FirstOrDefault(x => x.UserID == p.UserId)?.HostelName,
+                                           UserName = request.FirstOrDefault(x => x.UserID == p.UserId)?.UserName,
                                            Amount = p.Amount,
                                            PaymentMethod = p.PaymentMethod,
                                            TransactionId = p.TransactionId,
@@ -256,6 +257,54 @@ namespace PGPAY_DL.Repo
                     }
                     response.IsSuccess = true;
                     response.Content = hostelRequest.HostelId;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return response;
+        }
+
+        public async Task<ResponseModel> GetHostelFullDetailsById(int HostelID)
+        {
+            try
+            {
+                var Hostels = await (from hd in _context.HostelDetails
+                                     join d in _context.Discounts
+                                         on hd.HostelId equals d.HostelId into discountJoin
+                                     from discount in discountJoin.DefaultIfEmpty()
+                                     join r in _context.Ratings
+                                         on hd.HostelId equals r.HostelId into ratingJoin
+                                     from rating in ratingJoin.DefaultIfEmpty()
+                                     where hd.HostelId == HostelID
+                                     select new
+                                     {
+                                         Name = hd.HostelName,
+                                         Location = hd.HostalAddress,
+                                         Rating = rating.Starrate,
+                                         ReviewCount = rating.TotalRatings,
+                                         ReviewText = "Good size room complete with sitting area for two. Even had a fridge. Staff were so helpful and helped us arrange our onward journey.",
+                                         Reviewer = new
+                                         {
+                                             Name = hd.OwnerName,
+                                             Country = "Chennai"
+                                         },
+                                         Amenities = _context.HostelFacilities.Select(x => new
+                                         {
+                                             Icon = x.Imgpath,
+                                             Label = x.Name
+                                         }).ToList()
+                                     }).FirstOrDefaultAsync();
+                if (Hostels != null)
+                {
+                    response.IsSuccess = true;
+                    response.Content = Hostels;
+                }
+                else
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Error!!!!";
                 }
             }
             catch (Exception ex)
