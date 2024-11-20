@@ -3,6 +3,7 @@ using PGPAY_BL.IService;
 using PGPAY_BL.Service;
 using PGPAY_DL.dto;
 using PGPAY_Model.Model.Response;
+using PGPAY_Model.Model.UserDetails;
 
 namespace PGPAY.Controllers
 {
@@ -61,6 +62,17 @@ namespace PGPAY.Controllers
         public async Task<IActionResult> GetHostelFullDetailsById(int HostelID)
         {
             ResponseModel response = await service.GetHostelFullDetailsById(HostelID);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("AddHostelDetails")]
+        public async Task<IActionResult> AddHostelDetails([FromForm] HostelDetails bookingRequest)
+        {
+            ResponseModel response = await service.AddHostelDetails(bookingRequest);
             if (!response.IsSuccess)
             {
                 return BadRequest(response);

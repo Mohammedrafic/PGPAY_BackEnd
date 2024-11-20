@@ -1,5 +1,6 @@
 ﻿using PGPAY_DL.dto;
 using PGPAY_Model.Model.Response;
+using PGPAY_Model.Model.UserDetails;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace PGPAY_DL.IRepo
         Task<ResponseModel> GetHostelRequestById(int UserID);
         Task<ResponseModel> GetHostelFullDetailsById(int HostelID);
         Task<ResponseModel> HostelBookingRequest(BookingRequestDto bookingRequest);
+        Task<ResponseModel> AddHostelDetails(HostelDetails bookingRequest);
 
     }
 }

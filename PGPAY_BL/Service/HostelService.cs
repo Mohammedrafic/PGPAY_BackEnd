@@ -4,6 +4,7 @@ using PGPAY_DL.IRepo;
 using PGPAY_DL.Models.DB;
 using PGPAY_DL.Repo;
 using PGPAY_Model.Model.Response;
+using PGPAY_Model.Model.UserDetails;
 
 namespace PGPAY_BL.Service
 {
@@ -13,6 +14,11 @@ namespace PGPAY_BL.Service
         public HostelService(IHostelRepo repo)
         {
             _repo = repo;
+        }
+
+        public async Task<ResponseModel> AddHostelDetails(HostelDetails bookingRequest)
+        {
+            return await _repo.AddHostelDetails(bookingRequest);
         }
 
         public async Task<ResponseModel> GetAllHostelDetails()

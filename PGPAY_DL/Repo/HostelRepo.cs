@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using PGPAY_DL.Context;
 using PGPAY_DL.dto;
 using PGPAY_DL.IRepo;
 using PGPAY_DL.Models.DB;
+using PGPAY_Model.Enums;
 using PGPAY_Model.Model.Response;
 using PGPAY_Model.Model.UserDetails;
 
@@ -12,9 +15,11 @@ namespace PGPAY_DL.Repo
     {
         private readonly ResponseModel response = new();
         private readonly PGPAYContext _context;
-        public HostelRepo(PGPAYContext context)
+        private readonly IConfiguration _configuration;
+        public HostelRepo(PGPAYContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task<ResponseModel> GetAllHostelDetails()
@@ -58,21 +63,28 @@ namespace PGPAY_DL.Repo
         private static List<string> GetPhotos(List<HostelPhoto> hostelPhotos)
         {
             var photoUrls = new List<string>();
-            foreach (var photo in hostelPhotos)
+            if (hostelPhotos.Count() > 0)
             {
-                var photoPath = Path.Combine(Directory.GetCurrentDirectory(), "Files", photo.FileName);
+                foreach (var photo in hostelPhotos)
+                {
+                    var photoPath = Path.Combine(Directory.GetCurrentDirectory(), "Files", photo.FileName);
 
-                if (System.IO.File.Exists(photoPath))
-                {
-                    var bytes = System.IO.File.ReadAllBytes(photoPath);
-                    var base64Image = Convert.ToBase64String(bytes);
-                    var imageUrl = $"data:image/jpeg;base64,{base64Image}";
-                    photoUrls.Add(imageUrl);
+                    if (System.IO.File.Exists(photoPath))
+                    {
+                        var bytes = System.IO.File.ReadAllBytes(photoPath);
+                        var base64Image = Convert.ToBase64String(bytes);
+                        var imageUrl = $"data:image/jpeg;base64,{base64Image}";
+                        photoUrls.Add(imageUrl);
+                    }
+                    else
+                    {
+                        photoUrls.Add("assets\\images\\beds-hostel-affordable-housing-36997317.webp");
+                    }
                 }
-                else
-                {
-                    photoUrls.Add("assets\\images\\beds-hostel-affordable-housing-36997317.webp");
-                }
+            }
+            else
+            {
+                photoUrls.Add("assets\\images\\beds-hostel-affordable-housing-36997317.webp");
             }
             return photoUrls;
         }
@@ -312,6 +324,142 @@ namespace PGPAY_DL.Repo
                 throw;
             }
             return response;
+        }
+
+        public async Task<ResponseModel> AddHostelDetails(HostelDetails bookingRequest)
+        {
+            try
+            {
+                var existingHostel = await _context.HostelDetails.Where(x => x.UserId == bookingRequest.UserID && x.HostelName == bookingRequest.HostelName).FirstOrDefaultAsync();
+                if (existingHostel == null)
+                {
+                    HostelDetail hostelDetail = new HostelDetail
+                    {
+                        HostelName = bookingRequest.HostelName,
+                        UserId = bookingRequest.UserID,
+                        HostalAddress = bookingRequest.HostalAddress,
+                        NoOfRooms = bookingRequest.NoOfRooms,
+                        MinimumRent = bookingRequest.MinimumRent,
+                        MaximunRent = bookingRequest.MaximunRent,
+                        Rent = bookingRequest.MinimumRent,
+                        ContactNumber = bookingRequest.ContactNumber,
+                        OwnerName = bookingRequest.OwnerName,
+                        CreateBy = _configuration["CreatedBy"],
+                        UpdateBy = _configuration["UpdatedBy"],
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now
+                    };
+                    await _context.HostelDetails.AddAsync(hostelDetail);
+                    await _context.SaveChangesAsync();
+
+                    //if (hostelDetail.HostelId != 0)
+                    //{
+                    //    var user = await _context.Users.Where(x => x.UserId == bookingRequest.UserID).FirstOrDefaultAsync();
+                    //    if (user != null)
+                    //    {
+                    //        user.HostelId = hostelDetail.HostelId;
+                    //        _ = _context.Users.Update(user);
+                    //        await _context.SaveChangesAsync();
+                    //    }
+                    //}
+                    await UploadFiles(hostelDetail.HostelId, null);
+                    await RatingsandDiscount(hostelDetail.HostelId, null);
+                    response.IsSuccess = true;
+                    response.Content = hostelDetail.HostelId;
+                }
+                else
+                {
+                    response.IsSuccess = true;
+                    response.Message = "Hostel already exist!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return response;
+        }
+
+        private async Task<bool> UploadFiles(int hostelId, List<IFormFile>? files)
+        {
+            try
+            {
+                if (files == null || files.Count == 0)
+                    return false;
+
+                string fileDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Files");
+
+                Directory.CreateDirectory(fileDirectory);
+
+                List<HostelPhoto> hostelPhotos = new List<HostelPhoto>();
+
+                foreach (var file in files)
+                {
+                    var guid = Guid.NewGuid();
+                    string fileExtension = Path.GetExtension(file.FileName);
+                    string uniqueFileName = $"media_{DateTime.Now:yyyyMMdd_HHmmss}_{guid}{fileExtension}";
+                    string filePath = Path.Combine(fileDirectory, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    string fileUrl = $"{_configuration["BaseUrl"]}/Files/{uniqueFileName}";
+
+                    HostelPhoto hostelPhoto = new HostelPhoto
+                    {
+                        HostelId = hostelId,
+                        Imgpath = fileUrl,
+                        FileName = uniqueFileName,
+                        FileSize = file.Length,
+                        PhotosId = guid.ToString()
+                    };
+                    hostelPhotos.Add(hostelPhoto);
+                }
+
+                if (hostelPhotos.Count > 0)
+                {
+                    await _context.HostelPhotos.AddRangeAsync(hostelPhotos);
+                    await _context.SaveChangesAsync();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        private async Task<bool> RatingsandDiscount(int hostelId, UserDetailsdto? UserDetails)
+        {
+            try
+            {
+                Rating rating = new Rating
+                {
+                    HostelId = hostelId,
+                    TotalRatings = 0,
+                    Status = "Good",
+                    Starrate = "4.0"
+                };
+                await _context.Ratings.AddAsync(rating);
+
+                Discount discount = new Discount
+                {
+                    HostelId = hostelId,
+                    DiscountCode = null,
+                    Offerper = "50% off"
+                };
+
+                await _context.Discounts.AddAsync(discount);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }

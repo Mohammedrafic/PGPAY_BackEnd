@@ -42,6 +42,7 @@ namespace PGPAY_Model.Model.UserDetails
 
     public class HostelDetails
     {
+        public int UserID { get; set; }
         public string HostelName { get; set; } = null!;
 
         public string HostalAddress { get; set; } = null!;
