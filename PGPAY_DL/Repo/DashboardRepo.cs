@@ -16,6 +16,29 @@ namespace PGPAY_DL.Repo
             _context = context;
         }
 
+        public async Task<ResponseModel> GetMinimumRent(int HostelId)
+        {
+            try
+            {
+                if (HostelId != 0)
+                {
+                    var MinimumRent = await _context.HostelDetails.Where(x => x.HostelId == HostelId).Select(x => x.MinimumRent).FirstOrDefaultAsync();
+                    response.Content = MinimumRent;
+                    response.IsSuccess = true;
+                }
+                else
+                {
+                    response.IsSuccess = true;
+                    response.Message = "Error!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return response;
+        }
+
         public async Task<ResponseModel> GetUserDetails(int UserId)
         {
             try
@@ -32,6 +55,7 @@ namespace PGPAY_DL.Repo
                                         where hostelIds.Contains(H.HostelId)
                                         select new GetUserDetailsModel
                                         {
+                                            UserID = H.UserId,
                                             HostelId = H.HostelId,
                                             HostelName = H.HostelName,
                                             HostelAddress = H.HostalAddress,

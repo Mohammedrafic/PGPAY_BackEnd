@@ -17,5 +17,9 @@ public partial class SubMenuItem
 
     public string? UserPath { get; set; }
 
+    public bool? IsAdmin { get; set; }
+
+    public bool? IsUser { get; set; }
+
     public virtual MenuItem MenuItem { get; set; } = null!;
 }

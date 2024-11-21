@@ -21,5 +21,16 @@ namespace PGPAY.Controllers
             }
             return Ok(response);
         }
+
+        [HttpGet("GetMinimumRent")]
+        public async Task<IActionResult> GetMinimumRent(int HostelID)
+        {
+            ResponseModel response = await service.GetMinimumRent(HostelID);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }

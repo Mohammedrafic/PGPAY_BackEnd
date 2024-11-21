@@ -17,5 +17,9 @@ public partial class MenuItem
 
     public string? UserPath { get; set; }
 
+    public bool? IsAdmin { get; set; }
+
+    public bool? IsUser { get; set; }
+
     public virtual ICollection<SubMenuItem> SubMenuItems { get; set; } = new List<SubMenuItem>();
 }

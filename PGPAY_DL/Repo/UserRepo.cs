@@ -93,17 +93,20 @@ namespace PGPAY_DL.Repo
                                        x.Name,
                                        x.IsOpen,
                                        Path = UserRole == "Admin" ? x.AdminPath : x.UserPath,
+                                       x.IsAdmin,
+                                       x.IsUser,
                                        x.ImgPath,
                                        SubMenuItems = x.SubMenuItems.Select(s => new
                                        {
                                            s.Name,
                                            s.AdminPath,
                                            s.ImgPath,
+                                           s.IsAdmin,
+                                           s.IsUser,
                                            Path = UserRole == "Admin" ? s.AdminPath : s.UserPath,
                                            s.UserPath
                                        }).ToList()
-                                   })
-                                   .ToListAsync();
+                                   }).ToListAsync();
                 if (menuItems.Count() > 0)
                 {
                     response.IsSuccess = true;

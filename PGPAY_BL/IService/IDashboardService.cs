@@ -11,6 +11,7 @@ namespace PGPAY_BL.IService
     public interface IDashboardService
     {
         Task<ResponseModel> GetUserDetails(int HostelId);
+        Task<ResponseModel> GetMinimumRent(int HostelId);
 
     }
 }

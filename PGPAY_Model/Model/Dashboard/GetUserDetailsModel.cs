@@ -8,6 +8,7 @@ namespace PGPAY_Model.Model.Dashboard
 {
     public class GetUserDetailsModel
     {
+        public int UserID { get; set; }
         public int HostelId { get; set; }
         public string HostelName { get; set; } = null!;
         public string HostelAddress { get; set; }

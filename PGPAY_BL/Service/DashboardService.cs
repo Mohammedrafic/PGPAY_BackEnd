@@ -1,5 +1,6 @@
 ﻿using PGPAY_BL.IService;
 using PGPAY_DL.IRepo;
+using PGPAY_DL.Models.DB;
 using PGPAY_Model.Model.Response;
 
 namespace PGPAY_BL.Service
@@ -10,6 +11,11 @@ namespace PGPAY_BL.Service
         public DashboardService(IDashboardRepo repo)
         {
             _repo = repo;
+        }
+
+        public async Task<ResponseModel> GetMinimumRent(int HostelId)
+        {
+            return await _repo.GetMinimumRent(HostelId);
         }
 
         public async Task<ResponseModel> GetUserDetails(int UserId)

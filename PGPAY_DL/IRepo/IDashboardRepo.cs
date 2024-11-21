@@ -10,5 +10,6 @@ namespace PGPAY_DL.IRepo
     public interface IDashboardRepo
     {
         Task<ResponseModel> GetUserDetails(int HostelId);
+        Task<ResponseModel> GetMinimumRent(int HostelId);
     }
 }

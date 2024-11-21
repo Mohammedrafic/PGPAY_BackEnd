@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Crypto.Generators;
 using PGPAY_DL.Context;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
@@ -23,24 +25,32 @@ namespace HRDesk.Authentication
         [HttpPost]
         public IActionResult Authentication(string email, string password)
         {
-            var user = _context.Users.Where(x => x.Email == email && x.Password == password).FirstOrDefault();
-            if (user == null)
+            var user = _context.Users.FirstOrDefault(x => x.Email == email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
                 return Unauthorized();
-            var tokenhandler = new JwtSecurityTokenHandler();
-            var tokenkey = Encoding.UTF8.GetBytes(_jwtTokenGeneratorModel.SecurityKey);
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenKey = Encoding.UTF8.GetBytes(_jwtTokenGeneratorModel.SecurityKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name,user.Email,ClaimTypes.Role)
+                    new Claim(ClaimTypes.Name, user.Email),
+                    new Claim(ClaimTypes.Role, user.UserRole)
                 }),
-                Expires = DateTime.Now.AddMinutes(30),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenkey), SecurityAlgorithms.HmacSha256),
+                Expires = DateTime.UtcNow.AddMinutes(30),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256),
             };
-            var token = tokenhandler.CreateToken(tokenDescriptor);
-            string FinalToken = tokenhandler.WriteToken(token);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            string finalToken = tokenHandler.WriteToken(token);
 
-            return Ok(FinalToken);
+            return Ok(new
+            {
+                Token = finalToken,
+                Expiration = tokenDescriptor.Expires,
+                Email = user.Email,
+                Role = user.UserRole
+            });
         }
     }
 }
