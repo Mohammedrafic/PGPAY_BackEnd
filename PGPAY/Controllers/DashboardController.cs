@@ -4,7 +4,9 @@ using PGPAY_Model.Model.Response;
 
 namespace PGPAY.Controllers
 {
-    public class DashboardController : Controller
+    [Route("api/[Controller]")]
+    [ApiController]
+    public class DashboardController : ControllerBase
     {
         private readonly IDashboardService service;
         public DashboardController(IDashboardService service)

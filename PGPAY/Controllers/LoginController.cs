@@ -5,7 +5,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PGPAY.Controllers
 {
-    public class LoginController : Controller
+    [Route("api/[Controller]")]
+    [ApiController]
+    public class LoginController : ControllerBase
     {
         private readonly ILoginService service;
         private readonly IConfiguration _c;

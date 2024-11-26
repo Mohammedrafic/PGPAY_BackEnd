@@ -7,7 +7,9 @@ using PGPAY_Model.Model.UserDetails;
 
 namespace PGPAY.Controllers
 {
-    public class HostelController : Controller
+    [Route("api/[Controller]")]
+    [ApiController]
+    public class HostelController : ControllerBase
     {
         private readonly IHostelService service;
         public HostelController(IHostelService service)

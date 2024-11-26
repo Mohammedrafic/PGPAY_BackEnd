@@ -5,7 +5,9 @@ using PGPAY_Model.Model.UserDetails;
 
 namespace PGPAY.Controllers
 {
-    public class UserController : Controller
+    [Route("api/[Controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
     {
         private readonly IUserService service;
         public UserController(IUserService service)
