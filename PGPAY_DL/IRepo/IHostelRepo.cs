@@ -17,6 +17,7 @@ namespace PGPAY_DL.IRepo
         Task<ResponseModel> GetHostelFullDetailsById(int HostelID);
         Task<ResponseModel> HostelBookingRequest(BookingRequestDto bookingRequest);
         Task<ResponseModel> AddHostelDetails(HostelDetails bookingRequest);
+        Task<ResponseModel> RatingHostel(Ratingdto Ratingdto);
 
     }
 }

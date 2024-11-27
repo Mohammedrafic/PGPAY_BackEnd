@@ -295,6 +295,9 @@ namespace PGPAY_DL.Repo
                                          Name = hd.HostelName,
                                          Location = hd.HostalAddress,
                                          Rating = rating.Starrate,
+                                         Amount = hd.MinimumRent,
+                                         Discount = (hd.MinimumRent * int.Parse(discount.Offerper.Replace("% off", "")) / 100),
+                                         Offer = discount.Offerper,
                                          ReviewCount = rating.TotalRatings,
                                          ReviewText = "Good size room complete with sitting area for two. Even had a fridge. Staff were so helpful and helped us arrange our onward journey.",
                                          Reviewer = new
@@ -459,6 +462,79 @@ namespace PGPAY_DL.Repo
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        public async Task<ResponseModel> RatingHostel(Ratingdto ratingDto)
+        {
+            try
+            {
+                var existingRating = await _context.Ratings.FirstOrDefaultAsync(x => x.HostelId == ratingDto.HostelId);
+
+                if (existingRating != null)
+                {
+                    double currentStarRate = 0;
+                    if (!string.IsNullOrEmpty(existingRating.Starrate) &&
+                        double.TryParse(existingRating.Starrate, out double parsedStarRate))
+                    {
+                        currentStarRate = parsedStarRate;
+                    }
+                    double totalRatings = existingRating.TotalRatings ?? 0;
+                    existingRating.TotalRatings += 1;
+                    double newStarRate =
+                        (((currentStarRate * totalRatings) + ratingDto.Starrate)
+                        / existingRating.TotalRatings.Value);
+                    existingRating.Starrate = newStarRate.ToString("0.0");
+                    existingRating.Status = GetRatingStatus(newStarRate);
+                    _context.Ratings.Update(existingRating);
+                    response.Content = 1;
+                    response.Message = "Rating updated successfully!";
+                }
+                else
+                {
+                    double newStarRate = ratingDto.Starrate;
+
+                    var newRating = new Rating
+                    {
+                        HostelId = ratingDto.HostelId,
+                        TotalRatings = 1,
+                        Starrate = newStarRate.ToString("0.0"),
+                        Status = GetRatingStatus(newStarRate)
+                    };
+                    await _context.Ratings.AddAsync(newRating);
+                    response.Content = 1;
+                    response.Message = "Rating added successfully!";
+                }
+
+                await _context.SaveChangesAsync();
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = $"An error occurred while adding the rating: {ex.Message}";
+            }
+
+            return response;
+        }
+
+        private string GetRatingStatus(double starRate)
+        {
+            if (starRate >= 4.5)
+            {
+                return "Excellent";
+            }
+            else if (starRate >= 3.5)
+            {
+                return "Good";
+            }
+            else if (starRate >= 2.5)
+            {
+                return "Average";
+            }
+            else
+            {
+                return "Poor";
             }
         }
     }

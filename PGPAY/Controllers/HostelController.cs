@@ -81,5 +81,16 @@ namespace PGPAY.Controllers
             }
             return Ok(response);
         }
+
+        [HttpPost("RatingHostel")]
+        public async Task<IActionResult> RatingHostel([FromBody] Ratingdto Ratingdto)
+        {
+            ResponseModel response = await service.RatingHostel(Ratingdto);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }

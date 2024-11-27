@@ -46,5 +46,10 @@ namespace PGPAY_BL.Service
         {
             return await _repo.HostelBookingRequest(bookingRequest);
         }
+
+        public async Task<ResponseModel> RatingHostel(Ratingdto Ratingdto)
+        {
+            return await _repo.RatingHostel(Ratingdto);
+        }
     }
 }
