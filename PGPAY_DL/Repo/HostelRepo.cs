@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using PGPAY_DL.Context;
 using PGPAY_DL.dto;
 using PGPAY_DL.IRepo;
@@ -8,6 +9,7 @@ using PGPAY_DL.Models.DB;
 using PGPAY_Model.Enums;
 using PGPAY_Model.Model.Response;
 using PGPAY_Model.Model.UserDetails;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace PGPAY_DL.Repo
 {
@@ -168,43 +170,64 @@ namespace PGPAY_DL.Repo
             return response;
         }
 
-        public async Task<ResponseModel> GetHostelDetailsById(int UserID)
+        public async Task<ResponseModel> GetHostelDetailsById(HostelFilter filter)
         {
             try
             {
-                var HostelDetails = await (from HDetails in _context.HostelDetails.AsNoTracking()
-                                           join Ratings in _context.Ratings on HDetails.HostelId equals Ratings.HostelId
-                                           join Discnt in _context.Discounts on HDetails.HostelId equals Discnt.HostelId
-                                           join Photos in _context.HostelPhotos on HDetails.HostelId equals Photos.HostelId into hostelPhotosGroup
-                                           where HDetails.UserId == UserID
-                                           select new
-                                           {
-                                               HostelDetails = HDetails,
-                                               Ratings = Ratings,
-                                               Discounts = Discnt,
-                                               Photos = GetPhotos(hostelPhotosGroup.ToList()),
-                                               HostelFacility = _context.HostelFacilities.ToList(),
-                                           }).ToListAsync();
-                HostelDetails.ForEach(x =>
+                var hostelDetailsQuery = from HDetails in _context.HostelDetails.AsNoTracking()
+                                         join Ratings in _context.Ratings on HDetails.HostelId equals Ratings.HostelId
+                                         join Discnt in _context.Discounts on HDetails.HostelId equals Discnt.HostelId
+                                         join Photos in _context.HostelPhotos on HDetails.HostelId equals Photos.HostelId into hostelPhotosGroup
+                                         where HDetails.UserId == filter.UserId &&
+                                               (string.IsNullOrEmpty(filter.SearchTerm) || HDetails.HostelName.Contains(filter.SearchTerm)) &&
+                                               (filter.priceRange == 0 || HDetails.MinimumRent <= filter.priceRange)
+                                         select new
+                                         {
+                                             HDetails,
+                                             Ratings,
+                                             Discnt,
+                                             Photos = GetPhotos(hostelPhotosGroup.ToList()),
+                                             HostelFacility = _context.HostelFacilities.ToList(),
+                                         };
+
+                var hostelDetails = await hostelDetailsQuery.ToListAsync();
+
+                hostelDetails = hostelDetails
+                                .Where(x => filter.minRating == 0 || (double.TryParse(x.Ratings.Starrate, out var starRate) && starRate >= filter.minRating))
+                                .ToList();
+
+                hostelDetails = filter.SortOrder switch
                 {
-                    int offerPercentage = int.Parse(x.Discounts.Offerper.Replace("% off", ""));
-                    x.HostelDetails.Rent = (x.HostelDetails.MinimumRent * offerPercentage) / 100;
+                    "LowtoHigh" => hostelDetails.OrderBy(item => item.HDetails.MinimumRent).ToList(),
+                    "HightoLow" => hostelDetails.OrderByDescending(item => item.HDetails.MinimumRent).ToList(),
+                    "GuestRatings" => hostelDetails.OrderByDescending(item =>
+                        double.TryParse(item.Ratings.Starrate, out var guestRating) ? guestRating : 0).ToList(),
+                    _ => hostelDetails,
+                };
+
+                hostelDetails.ForEach(x =>
+                {
+                    int offerPercentage = int.Parse(x.Discnt.Offerper.Replace("% off", ""));
+                    x.HDetails.Rent = (x.HDetails.MinimumRent * offerPercentage) / 100;
                 });
-                if (HostelDetails.Count() > 0)
+
+                if (hostelDetails.Any())
                 {
                     response.IsSuccess = true;
-                    response.Content = HostelDetails;
+                    response.Content = hostelDetails;
                 }
                 else
                 {
                     response.IsSuccess = false;
-                    response.Message = "Error!!!!";
+                    response.Message = "No hostel details found.";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw;
+                response.IsSuccess = false;
+                response.Message = "An error occurred while fetching hostel details.";
             }
+
             return response;
         }
 

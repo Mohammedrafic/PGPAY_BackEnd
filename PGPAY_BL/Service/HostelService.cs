@@ -26,7 +26,7 @@ namespace PGPAY_BL.Service
             return await _repo.GetAllHostelDetails();
         }
 
-        public async Task<ResponseModel> GetHostelDetailsById(int UserId)
+        public async Task<ResponseModel> GetHostelDetailsById(HostelFilter UserId)
         {
             return await _repo.GetHostelDetailsById(UserId);
         }

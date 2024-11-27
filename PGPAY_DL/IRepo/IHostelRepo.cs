@@ -12,7 +12,7 @@ namespace PGPAY_DL.IRepo
     public interface IHostelRepo
     {
         Task<ResponseModel> GetAllHostelDetails();
-        Task<ResponseModel> GetHostelDetailsById(int UserID);
+        Task<ResponseModel> GetHostelDetailsById(HostelFilter UserID);
         Task<ResponseModel> GetHostelRequestById(int UserID);
         Task<ResponseModel> GetHostelFullDetailsById(int HostelID);
         Task<ResponseModel> HostelBookingRequest(BookingRequestDto bookingRequest);

@@ -12,7 +12,7 @@ namespace PGPAY_BL.IService
     public interface IHostelService
     {
         Task<ResponseModel> GetAllHostelDetails();
-        Task<ResponseModel> GetHostelDetailsById(int UserId);
+        Task<ResponseModel> GetHostelDetailsById(HostelFilter UserId);
         Task<ResponseModel> GetHostelRequestById(int UserId);
         Task<ResponseModel> GetHostelFullDetailsById(int HostelID);
         Task<ResponseModel> HostelBookingRequest(BookingRequestDto bookingRequest);

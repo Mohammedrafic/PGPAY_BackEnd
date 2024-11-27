@@ -38,8 +38,8 @@ namespace PGPAY.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetHostelDetailsById")]
-        public async Task<IActionResult> GetHostelDetailsById(int UserID)
+        [HttpPost("GetHostelDetailsById")]
+        public async Task<IActionResult> GetHostelDetailsById(HostelFilter UserID)
         {
             ResponseModel response = await service.GetHostelDetailsById(UserID);
             if (!response.IsSuccess)

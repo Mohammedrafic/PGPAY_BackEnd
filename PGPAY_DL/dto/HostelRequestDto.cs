@@ -31,4 +31,13 @@ namespace PGPAY_DL.dto
         public DateTime? UpdatedAt { get; set; }
         public int? HostelId { get; set; }
     }
+
+    public class HostelFilter
+    {
+        public int UserId { get; set; }
+        public string? SearchTerm { get; set; }
+        public string? SortOrder { get; set;}
+        public int priceRange { get; set; }
+        public int minRating { get; set; }
+    }
 }
