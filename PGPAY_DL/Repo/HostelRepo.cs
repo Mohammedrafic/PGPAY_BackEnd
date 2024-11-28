@@ -180,7 +180,7 @@ namespace PGPAY_DL.Repo
                                          join Photos in _context.HostelPhotos on HDetails.HostelId equals Photos.HostelId into hostelPhotosGroup
                                          where HDetails.UserId == filter.UserId &&
                                                (string.IsNullOrEmpty(filter.SearchTerm) || HDetails.HostelName.Contains(filter.SearchTerm)) &&
-                                               (filter.priceRange == 0 || HDetails.MinimumRent <= filter.priceRange)
+                                               (filter.priceRange == 0 || HDetails.MinimumRent >= filter.priceRange)
                                          select new
                                          {
                                              HDetails,
@@ -193,8 +193,7 @@ namespace PGPAY_DL.Repo
                 var hostelDetails = await hostelDetailsQuery.ToListAsync();
 
                 hostelDetails = hostelDetails
-                                .Where(x => filter.minRating == 0 || (double.TryParse(x.Ratings.Starrate, out var starRate) && starRate >= filter.minRating))
-                                .ToList();
+                                .Where(x => filter.minRating == 0 || (double.TryParse(x.Ratings.Starrate, out var starRate) && starRate >= filter.minRating)).ToList();
 
                 hostelDetails = filter.SortOrder switch
                 {
