@@ -10,5 +10,6 @@ namespace PGPAY_BL.IService
     public interface ILoginService
     {
         Task<ResponseModel> Login(string Email, string Password);
+        Task<ResponseModel> ForgotPassword(string Email);
     }
 }

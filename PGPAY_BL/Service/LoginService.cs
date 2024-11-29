@@ -17,6 +17,11 @@ namespace PGPAY_BL.Service
             _repo= repo;
         }
 
+        public async Task<ResponseModel> ForgotPassword(string Email)
+        {
+            return await _repo.ForgotPassword(Email);
+        }
+
         public async Task<ResponseModel> Login(string Email, string Password)
         {
             return await _repo.Login(Email, Password);

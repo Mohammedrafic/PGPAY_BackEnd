@@ -20,8 +20,18 @@ namespace PGPAY.Controllers
         [HttpGet("Login")]
         public async Task<IActionResult> Login(string Email, string Password)
         {
-            var data = _c["Users:CreatedBy"];
             ResponseModel response = await service.Login(Email, Password);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(string Email)
+        {
+            ResponseModel response = await service.ForgotPassword(Email);
             if (!response.IsSuccess)
             {
                 return BadRequest(response);

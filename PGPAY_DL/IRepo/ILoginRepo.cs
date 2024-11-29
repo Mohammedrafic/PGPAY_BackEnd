@@ -10,5 +10,6 @@ namespace PGPAY_DL.IRepo
     public interface ILoginRepo
     {
         Task<ResponseModel> Login(string Email, string Password);
+        Task<ResponseModel> ForgotPassword(string Email);
     }
 }
