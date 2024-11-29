@@ -1,4 +1,5 @@
-﻿using PGPAY_Model.Model.Response;
+﻿using PGPAY_Model.Model.Login;
+using PGPAY_Model.Model.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace PGPAY_DL.IRepo
     {
         Task<ResponseModel> Login(string Email, string Password);
         Task<ResponseModel> ForgotPassword(string Email);
+        Task<ResponseModel> resetpassword(ResetPassword RPassword);
     }
 }

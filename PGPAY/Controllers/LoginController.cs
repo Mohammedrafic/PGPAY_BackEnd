@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PGPAY_BL.IService;
+using PGPAY_Model.Model.Login;
 using PGPAY_Model.Model.Response;
 using System.ComponentModel.DataAnnotations;
 
@@ -32,6 +33,17 @@ namespace PGPAY.Controllers
         public async Task<IActionResult> ForgotPassword(string Email)
         {
             ResponseModel response = await service.ForgotPassword(Email);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("resetpassword")]
+        public async Task<IActionResult> resetpassword(ResetPassword RPassword)
+        {
+            ResponseModel response = await service.resetpassword(RPassword);
             if (!response.IsSuccess)
             {
                 return BadRequest(response);
