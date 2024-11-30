@@ -29,7 +29,11 @@ namespace PGPAY_DL.Repo
                 var result = await _context.Users.Where(x => x.Email == Email).FirstOrDefaultAsync();
                 if (result != null)
                 {
-                    string resetLink = "https://pgpayf.github.io/PGPAYForgotPassword/";
+                    Guid guid = Guid.NewGuid();
+                    result.UniqueKey = guid;
+                    _ = _context.Update(result);
+                    await _context.SaveChangesAsync();
+                    string resetLink = $"https://pgpayf.github.io/PGPAYForgotPassword/Id/{guid}";
                     string body = $"Dear {result.UserName},\r\n\r\nWe received a request from this mail '{Email}' to reset the password for your account. If you made this request, please click the link below to reset your password:\r\n\r\n{resetLink}\r\n\r\nIf you did not request a password reset, please ignore this email or contact our support team if you have concerns.\r\n\r\nThank you,\r\nMohammed Rafic S/ mohammedrafic121@gmail.com";
 
                     MailAddress to = new MailAddress(Email);
@@ -68,6 +72,34 @@ namespace PGPAY_DL.Repo
             return response;
         }
 
+        public async Task<ResponseModel> GetUniqueIdForForgotPassword(Guid uniqueId)
+        {
+            try
+            {
+                var result = await _context.Users.Where(x => x.UniqueKey == uniqueId).FirstOrDefaultAsync();
+                if (result != null)
+                {
+                    result.UniqueKey = null;
+                    _context.Update(result);
+                    await _context.SaveChangesAsync();
+
+                    response.IsSuccess = true;
+                    response.Content = 1;
+                }
+                else
+                {
+                    response.IsSuccess = true;
+                    response.Message = "Something went wrong!!!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = true;
+                response.Message = $"An unexpected error occurred: {ex.Message}";
+            }
+
+            return response;
+        }
 
         public async Task<ResponseModel> Login(string Email, string Password)
         {

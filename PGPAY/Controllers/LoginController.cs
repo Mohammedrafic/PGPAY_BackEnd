@@ -50,5 +50,16 @@ namespace PGPAY.Controllers
             }
             return Ok(response);
         }
+
+        [HttpGet("GetUniqueIdForForgotPassword")]
+        public async Task<IActionResult> GetUniqueIdForForgotPassword(Guid uniqueId)
+        {
+            ResponseModel response = await service.GetUniqueIdForForgotPassword(uniqueId);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }

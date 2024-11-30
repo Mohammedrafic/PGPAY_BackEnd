@@ -13,5 +13,6 @@ namespace PGPAY_DL.IRepo
         Task<ResponseModel> Login(string Email, string Password);
         Task<ResponseModel> ForgotPassword(string Email);
         Task<ResponseModel> resetpassword(ResetPassword RPassword);
+        Task<ResponseModel> GetUniqueIdForForgotPassword(Guid Email);
     }
 }

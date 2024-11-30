@@ -13,5 +13,7 @@ namespace PGPAY_BL.IService
         Task<ResponseModel> Login(string Email, string Password);
         Task<ResponseModel> ForgotPassword(string Email);
         Task<ResponseModel> resetpassword(ResetPassword RPassword);
+        Task<ResponseModel> GetUniqueIdForForgotPassword(Guid uniqueId);
+
     }
 }

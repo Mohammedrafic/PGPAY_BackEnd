@@ -23,6 +23,11 @@ namespace PGPAY_BL.Service
             return await _repo.ForgotPassword(Email);
         }
 
+        public async Task<ResponseModel> GetUniqueIdForForgotPassword(Guid uniqueId)
+        {
+            return await _repo.GetUniqueIdForForgotPassword(uniqueId);
+        }
+
         public async Task<ResponseModel> Login(string Email, string Password)
         {
             return await _repo.Login(Email, Password);

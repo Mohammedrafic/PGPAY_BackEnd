@@ -25,6 +25,8 @@ public partial class User
 
     public int? HostelId { get; set; }
 
+    public Guid? UniqueKey { get; set; }
+
     public virtual HostelDetail? Hostel { get; set; }
 
     public virtual ICollection<HostelDetail> HostelDetails { get; set; } = new List<HostelDetail>();
