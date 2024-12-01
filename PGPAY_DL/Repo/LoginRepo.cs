@@ -33,7 +33,7 @@ namespace PGPAY_DL.Repo
                     result.UniqueKey = guid;
                     _ = _context.Update(result);
                     await _context.SaveChangesAsync();
-                    string resetLink = $"https://pgpayf.github.io/PGPAYForgotPassword/Id/{guid}";
+                    string resetLink = $"https://pgpayforgotpassword.web.app/Id/{guid}";
                     string body = $"Dear {result.UserName},\r\n\r\nWe received a request from this mail '{Email}' to reset the password for your account. If you made this request, please click the link below to reset your password:\r\n\r\n{resetLink}\r\n\r\nIf you did not request a password reset, please ignore this email or contact our support team if you have concerns.\r\n\r\nThank you,\r\nMohammed Rafic S/ mohammedrafic121@gmail.com";
 
                     MailAddress to = new MailAddress(Email);
