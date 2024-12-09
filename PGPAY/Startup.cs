@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PGPAY_BL.Hub.HubClass;
 using PGPAY_BL.IService;
 using PGPAY_BL.Service;
 using PGPAY_DL.Context;
@@ -26,6 +27,7 @@ namespace HRDesk
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSignalR();
             services.AddDbContext<PGPAYContext>(opts => opts.UseSqlServer(Configuration.GetConnectionString("UserProfile")));
             services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<ILoginRepo, LoginRepo>();
@@ -114,6 +116,7 @@ namespace HRDesk
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<MessageHub>("/offers");
             });
         }
     }
