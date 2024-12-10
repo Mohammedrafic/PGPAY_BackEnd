@@ -24,5 +24,10 @@ namespace PGPAY_BL.Service
         {
             return await _repo.GetLayoutData(UserRole);
         }
+
+        public async Task<ResponseModel> GetUserDetailsById(int UserId, int hostelId)
+        {
+            return await _repo.GetUserDetailsById(UserId, hostelId);
+        }
     }
 }

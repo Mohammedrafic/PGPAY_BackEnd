@@ -12,5 +12,6 @@ namespace PGPAY_BL.IService
     {
         Task<ResponseModel> AddUser(UserDetailsdto UserDetails);
         Task<ResponseModel> GetLayoutData(string UserRole);
+        Task<ResponseModel> GetUserDetailsById(int UserId, int hostelId);
     }
 }

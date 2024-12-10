@@ -154,7 +154,7 @@ namespace PGPAY_DL.Repo
                     if (hostelId != 0)
                     {
                         NewUser.HostelId = hostelId;
-                        _= _context.Users.Update(NewUser);
+                        _ = _context.Users.Update(NewUser);
                         await _context.SaveChangesAsync();
                         await UploadFiles(hostelId, null); //UserDetails.HostelDetails.HostalPhotosPath);
                     }
@@ -197,7 +197,7 @@ namespace PGPAY_DL.Repo
                     HostelPhoto hostelPhoto = new HostelPhoto
                     {
                         HostelId = hostelId,
-                        Imgpath = fileUrl, 
+                        Imgpath = fileUrl,
                         FileName = uniqueFileName,
                         FileSize = file.Length,
                         PhotosId = guid.ToString()
@@ -242,6 +242,30 @@ namespace PGPAY_DL.Repo
                 await _context.SaveChangesAsync();
 
                 return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<ResponseModel> GetUserDetailsById(int UserId, int hostelId)
+        {
+            try
+            {
+                var UserDetails = await _context.UserDetails.Where(x => x.UserId == UserId).FirstOrDefaultAsync();
+                if (UserDetails != null)
+                {
+                    response.IsSuccess = true;
+                    response.Content = UserDetails;
+                    response.Message = "Data get successfully";
+                }
+                else
+                {
+                    response.IsSuccess = true;
+                    response.Message = "Something went wrong!!!!!";
+                }
+                return response;
             }
             catch (Exception ex)
             {

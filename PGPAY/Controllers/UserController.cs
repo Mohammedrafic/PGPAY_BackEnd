@@ -36,5 +36,16 @@ namespace PGPAY.Controllers
             }
             return Ok(response);
         }
+
+        [HttpGet("GetUserDetailsById")]
+        public async Task<IActionResult> GetUserDetailsById(int UserId, int hostelId)
+        {
+            ResponseModel response = await service.GetUserDetailsById(UserId, hostelId);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }
