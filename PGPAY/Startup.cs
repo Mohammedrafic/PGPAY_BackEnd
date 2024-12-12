@@ -117,6 +117,7 @@ namespace HRDesk
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<MessageHub>("/offers");
+                endpoints.MapHub<RequestHub>("/request");
             });
         }
     }

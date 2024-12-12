@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using PGPAY_BL.Hub.HubClass;
+using PGPAY_BL.Hub.IHub;
 using PGPAY_DL.Context;
 using PGPAY_DL.dto;
 using PGPAY_DL.IRepo;
@@ -18,10 +21,12 @@ namespace PGPAY_DL.Repo
         private readonly ResponseModel response = new();
         private readonly PGPAYContext _context;
         private readonly IConfiguration _configuration;
-        public HostelRepo(PGPAYContext context, IConfiguration configuration)
+        private readonly IHubContext<RequestHub, IRequestHubClient> _requesthub;
+        public HostelRepo(PGPAYContext context, IConfiguration configuration, IHubContext<RequestHub, IRequestHubClient> requesthub)
         {
             _context = context;
             _configuration = configuration;
+            _requesthub = requesthub;
         }
 
         public async Task<ResponseModel> GetAllHostelDetails()
@@ -133,6 +138,7 @@ namespace PGPAY_DL.Repo
                                        .AsEnumerable()
                                        .Select(p => new
                                        {
+                                           HostelId = p.HostelId,
                                            HostelName = request.FirstOrDefault(x => x.UserID == p.UserId)?.HostelName,
                                            UserName = request.FirstOrDefault(x => x.UserID == p.UserId)?.UserName,
                                            Amount = p.Amount,
@@ -152,12 +158,18 @@ namespace PGPAY_DL.Repo
                     response.Content = new
                     {
                         Details = request,
-                        Payment = payments
+                        Payment = payments,
+                        hostelids = hostelIds,
                     };
+                    response.Message = "Data get successfully";
                 }
                 else
                 {
-                    response.IsSuccess = false;
+                    response.Content = new
+                    {
+                        hostelids = hostelIds
+                    };
+                    response.IsSuccess = true;
                     response.Message = "No requests found for the specified User ID.";
                 }
             }
@@ -234,11 +246,16 @@ namespace PGPAY_DL.Repo
         {
             try
             {
-                var exisingReq = await _context.HostelRequests.Where(x => x.UserId == bookingRequest.UserId && x.RequestType == "Booking").ToListAsync();
+                var exisingReq = await _context.HostelRequests.Where(x => x.UserId == bookingRequest.UserId && x.HostelId == bookingRequest.HostelId && x.RequestType == "Booking").ToListAsync();
                 if (exisingReq.Count() > 0)
                 {
                     var Payment = await _context.Payments.Where(x => x.UserId == bookingRequest.UserId && x.PaymentStatus == "Completed" && x.HostelId == bookingRequest.HostelId).FirstOrDefaultAsync();
                     if (Payment != null && Payment.IsAdvancePayment == true)
+                    {
+                        response.IsSuccess = true;
+                        response.Message = "User already booked this Hostel";
+                    }
+                    else
                     {
                         response.IsSuccess = true;
                         response.Message = "User already booked this Hostel";
@@ -291,6 +308,12 @@ namespace PGPAY_DL.Repo
                     }
                     response.IsSuccess = true;
                     response.Content = hostelRequest.HostelId;
+                    var userId = await _context.HostelDetails.Where(x => x.HostelId == bookingRequest.HostelId).Select(x => x.UserId).FirstOrDefaultAsync();
+                    var data = await GetHostelRequestById(userId);
+                    if (data.Content != null)
+                    {
+                        _ = _requesthub.Clients.All.SendRequestToUser(data.Content);
+                    }
                 }
             }
             catch (Exception ex)
